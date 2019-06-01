@@ -20,7 +20,8 @@ set(
 
 set(
         ${PROJECT_NAME}_SCR_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/Exception.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/LuaVmExtended.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/LuaArgument.cpp
 )
 
 add_library(
