@@ -29,13 +29,13 @@
  */
 #include <dlfcn.h>
 #include <stdarg.h>
-#include "MtaLua/ILuaModuleManager.h"
+#include "lua/ILuaModuleManager.h"
 
 EXTERN_C_BLOCK_START
-#include "MtaLua/luaconf.h"
-#include "MtaLua/lua.h"
-#include "MtaLua/lauxlib.h"
-#include "MtaLua/lualib.h"
+#include "lua/luaconf.h"
+#include "lua/lua.h"
+#include "lua/lauxlib.h"
+#include "lua/lualib.h"
 EXTERN_C_BLOCK_END
 
 /* This file extracts the MtaLua function addresses from the server core to avoid MtaLua gc crashes */

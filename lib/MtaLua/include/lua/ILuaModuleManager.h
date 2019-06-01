@@ -17,7 +17,7 @@
 
 #include <string>
 
-#include "MtaLua/utils.h"
+#include "utils.h"
 
 EXTERN_C_BLOCK_START
 #include "lua.h"

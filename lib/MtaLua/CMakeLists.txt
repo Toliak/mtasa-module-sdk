@@ -9,12 +9,12 @@ set(
 
 set(
         ${PROJECT_NAME}_INCLUDE_FILES
-        ${${PROJECT_NAME}_INCLUDE_DIR}/MtaLua/ILuaModuleManager.h
-        ${${PROJECT_NAME}_INCLUDE_DIR}/MtaLua/lua.h
-        ${${PROJECT_NAME}_INCLUDE_DIR}/MtaLua/luaconf.h
-        ${${PROJECT_NAME}_INCLUDE_DIR}/MtaLua/lualib.h
-        ${${PROJECT_NAME}_INCLUDE_DIR}/MtaLua/lauxlib.h
-        ${${PROJECT_NAME}_INCLUDE_DIR}/MtaLua/utils.h
+        ${${PROJECT_NAME}_INCLUDE_DIR}/lua/ILuaModuleManager.h
+        ${${PROJECT_NAME}_INCLUDE_DIR}/lua/lua.h
+        ${${PROJECT_NAME}_INCLUDE_DIR}/lua/luaconf.h
+        ${${PROJECT_NAME}_INCLUDE_DIR}/lua/lualib.h
+        ${${PROJECT_NAME}_INCLUDE_DIR}/lua/lauxlib.h
+        ${${PROJECT_NAME}_INCLUDE_DIR}/lua/utils.h
 )
 set(
         ${PROJECT_NAME}_SRC_FILES
