@@ -13,12 +13,14 @@ include_directories(${${PROJECT_NAME}_INCLUDE_DIR})
 
 set(
         ${PROJECT_NAME}_INCLUDE_FILES
-
+        ${${PROJECT_NAME}_INCLUDE_DIR}/ModuleSdk/Exception.h
+        ${${PROJECT_NAME}_INCLUDE_DIR}/ModuleSdk/LuaArgument.h
+        ${${PROJECT_NAME}_INCLUDE_DIR}/ModuleSdk/LuaVmExtended.h
 )
 
 set(
         ${PROJECT_NAME}_SCR_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/Exception.cpp
 )
 
 add_library(
