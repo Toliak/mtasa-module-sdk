@@ -6,17 +6,28 @@
 
 #include "LuaArgumentType.h"
 
+static const std::unordered_map<LuaArgumentType, std::string> STRING_TYPE = {
+    {LuaArgumentType::NIL, "Nil"},
+    {LuaArgumentType::BOOLEAN, "Boolean"},
+    {LuaArgumentType::LIGHTUSERDATA, "Light userdata"},
+    {LuaArgumentType::NUMBER, "Number"},
+    {LuaArgumentType::STRING, "String"},
+    {LuaArgumentType::TABLE, "Table"},
+    {LuaArgumentType::FUNCTION, "Function"},
+    {LuaArgumentType::USERDATA, "Userdata"},
+    {LuaArgumentType::THREAD, "Thread"},
+    {LuaArgumentType::INTEGER, "Integer"},
+};
 
-class LuaVmException: public std::exception
+class LuaException: public std::exception
 {
 public:
     const char *what() const noexcept override = 0;
 
-    ~LuaVmException() override = default;
+    ~LuaException() override = default;
 };
 
-
-class LuaVmBadType: public LuaVmException
+class LuaBadType: public LuaException
 {
 public:
     const char *what() const noexcept override
@@ -24,50 +35,82 @@ public:
         return "Bad argument type";
     }
 
-    ~LuaVmBadType() override = default;
+    ~LuaBadType() override = default;
 };
 
-class LuaVmUnexpectedType: public LuaVmException
+class LuaUnexpectedType: public LuaException
 {
 public:
+    LuaUnexpectedType() = default;
+
+    LuaUnexpectedType(LuaArgumentType expectedType, LuaArgumentType receivedType)
+        : expectedType(expectedType),
+          receivedType(receivedType),
+          typesInfo(true)
+    {}
+
+    LuaUnexpectedType(LuaArgumentType expectedType, LuaArgumentType receivedType, int index)
+        : index(index),
+          expectedType(expectedType),
+          receivedType(receivedType),
+          typesInfo(true),
+          indexInfo(true)
+    {}
+
     const char *what() const noexcept override
     {
-        return "Unexpected argument type";
+        if (!typesInfo) {
+            return "Unexpected argument type";
+        }
+
+        if (!indexInfo) {
+            std::string result =
+                "Expected " + STRING_TYPE.at(this->expectedType) + ", got " + STRING_TYPE.at(this->receivedType);
+            return result.c_str();
+        }
+
+        std::string result =
+            "Expected " + STRING_TYPE.at(this->expectedType) + ", got " + STRING_TYPE.at(this->receivedType)
+                + " at argument " + std::to_string(index);
+        return result.c_str();
     }
 
-    ~LuaVmUnexpectedType() override = default;
+    ~LuaUnexpectedType() override = default;
+
+private:
+    bool typesInfo = false;
+    bool indexInfo = false;
+    int index = 0;
+    LuaArgumentType expectedType = LuaArgumentType::NIL;
+    LuaArgumentType receivedType = LuaArgumentType::NIL;
 };
 
-
-class LuaVmArgumentException: public LuaVmException
+class LuaArgumentException: public LuaException
 {
 public:
     const char *what() const noexcept override = 0;
 
-    ~LuaVmArgumentException() override = default;
+    ~LuaArgumentException() override = default;
 };
 
-
-class LuaVmUnexpectedArgumentType: public LuaVmArgumentException
+class LuaUnexpectedArgumentType: public LuaArgumentException
 {
 public:
-    LuaVmUnexpectedArgumentType() = delete;
+    LuaUnexpectedArgumentType() = delete;
 
-    explicit LuaVmUnexpectedArgumentType(LuaArgumentType expectedType)
+    explicit LuaUnexpectedArgumentType(LuaArgumentType expectedType)
         : expectedType(expectedType)
     {}
 
     const char *what() const noexcept override
     {
-        std::string result = "Expected " + stringify.at(this->expectedType);
+        std::string result = "Expected " + STRING_TYPE.at(this->expectedType);
         return result.c_str();
     }
 
-    ~LuaVmUnexpectedArgumentType() override = default;
+    ~LuaUnexpectedArgumentType() override = default;
 
 private:
     LuaArgumentType expectedType;
-
-    static const std::unordered_map<LuaArgumentType, std::string> stringify;
 };
 

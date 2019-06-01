@@ -11,7 +11,7 @@
 templateType to##typeName() const    \
 {                       \
     if (this->type != (check)) {  \
-        throw LuaVmUnexpectedArgumentType(check); \
+        throw LuaUnexpectedArgumentType(check); \
     }
 
 
@@ -99,7 +99,7 @@ public:
     void *toPointer() const
     {
         if (!(this->type == LuaArgumentType::LIGHTUSERDATA || this->type == LuaArgumentType::USERDATA)) {
-            throw LuaVmUnexpectedArgumentType(LuaArgumentType::LIGHTUSERDATA);
+            throw LuaUnexpectedArgumentType(LuaArgumentType::LIGHTUSERDATA);
         }
 
         return value;

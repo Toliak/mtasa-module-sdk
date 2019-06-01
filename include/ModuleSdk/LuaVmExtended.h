@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdexcept>
 #include <list>
 #include <vector>
 #include <unordered_map>
@@ -27,13 +28,32 @@ public:
         return arguments;
     }
 
-    /*template<class ...Args>
-    const std::vector<LuaArgument> &getArguments(Args... args)
+    std::vector<LuaArgument> getArguments(const std::list<LuaArgumentType> &types) const
     {
-        std::list<LuaArgumentType> typesList{args...};
+        std::vector<LuaArgument> result(types.size());
 
-        return arguments;
-    }*/
+        int index = 1;
+        auto listIterator = types.cbegin();
+        for (; lua_type(luaVm, index) != LUA_TNONE && listIterator != types.cend(); index++) {
+            try {
+                result[index - 1] = parseArgument(index, *listIterator);
+            } catch (LuaException &) {
+                throw LuaUnexpectedType(
+                    *listIterator,
+                    static_cast<LuaArgumentType>(lua_type(luaVm, index)),
+                    index
+                );
+            }
+            listIterator++;
+        }
+
+        if (index - 1 != types.size()) {
+            throw std::out_of_range("Not enough arguments");                //TODO: LuaOutOfRange
+        }
+
+
+        return result;
+    }
 
     template<typename IT>
     int pushArguments(IT begin, IT end)
@@ -58,6 +78,8 @@ public:
             lua_pushboolean(luaVm, argument.toBool());
         } else if (argument.getType() == LuaArgumentType::LIGHTUSERDATA) {
             lua_pushlightuserdata(luaVm, argument.toPointer());
+        } else if (argument.getType() == LuaArgumentType::USERDATA) {
+            lua_pushlightuserdata(luaVm, argument.toPointer());
         }
     }
 
@@ -79,7 +101,7 @@ private:
      * @throws LuaVmBadType Unexpected type has been captured
      * @return Argument object
      */
-    LuaArgument parseArgument(int index)
+    LuaArgument parseArgument(int index) const
     {
         if (lua_isboolean(luaVm, index)) {
             return parseArgument(index, LuaArgumentType::BOOLEAN, true);
@@ -93,10 +115,10 @@ private:
             return parseArgument(index, LuaArgumentType::NIL, true);
         }
 
-        throw LuaVmBadType();
+        throw LuaBadType();
     }
 
-    LuaArgument parseArgument(int index, LuaArgumentType type, bool force = false)
+    LuaArgument parseArgument(int index, LuaArgumentType type, bool force = false) const
     {
         static const std::unordered_map<LuaArgumentType, int (*)(lua_State *, int)> TYPE_CHECKER = {
             {LuaArgumentType::INTEGER, lua_isnumber},
@@ -117,11 +139,11 @@ private:
             try {
                 checker = TYPE_CHECKER.at(type);
             } catch (std::out_of_range &) {
-                throw LuaVmBadType();
+                throw LuaBadType();
             }
 
             if (!checker(luaVm, index)) {
-                throw LuaVmUnexpectedType();
+                throw LuaUnexpectedType();
             }
         }
 
@@ -133,6 +155,8 @@ private:
             return LuaArgument(std::string(lua_tostring(luaVm, index)));
         } else if (type == LuaArgumentType::USERDATA) {
             return LuaArgument(static_cast<void *>(lua_touserdata(luaVm, index)));
+        } else if (type == LuaArgumentType::INTEGER) {
+            return LuaArgument(static_cast<int>(lua_tointeger(luaVm, index)));
         }
 
         return LuaArgument();
