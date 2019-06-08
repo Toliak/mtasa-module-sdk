@@ -1,0 +1,7 @@
+<meta>
+    <info type="script" />
+
+    <script src="moduleTest.lua" type="server" />
+
+    <oop>true</oop>
+</meta>
