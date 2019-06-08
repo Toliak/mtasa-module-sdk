@@ -43,6 +43,8 @@ void LuaVmExtended::pushArgument(const LuaArgument &argument)
         lua_pushlightuserdata(luaVm, argument.toPointer());
     } else if (argument.getType() == LuaArgumentType::USERDATA) {
         lua_pushlightuserdata(luaVm, argument.toPointer());
+    } else if (argument.getType() == LuaArgumentType::OBJECT) {
+        this->pushObject(argument.toObject());
     }
 }
 
@@ -105,4 +107,41 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
     }
 
     return LuaArgument();
+}
+
+void LuaVmExtended::pushObject(const LuaObject &object)
+{
+    auto *pointer = reinterpret_cast<void *>(object.getObjectId().id);
+
+    lua_pushstring(luaVm, "ud");
+    lua_rawget(luaVm, LUA_REGISTRYINDEX);
+
+    // First we want to check if we have a userdata for this already
+    lua_pushlightuserdata(luaVm, pointer);
+    lua_rawget(luaVm, -2);
+
+    if (lua_isnil(luaVm, -1)) {
+        lua_pop(luaVm, 1);
+
+        // we don't have it, create it
+        *(void **) lua_newuserdata(luaVm, sizeof(void *)) = pointer;
+
+        // save in ud table
+        lua_pushlightuserdata(luaVm, pointer);
+        lua_pushvalue(luaVm, -2);
+        lua_rawset(luaVm, -4);
+    }
+
+    // userdata is already on the stack, just remove the table
+    lua_remove(luaVm, -2);
+
+    // Get class
+    lua_pushstring(luaVm, "mt");                     // "mt"
+    lua_rawget(luaVm, LUA_REGISTRYINDEX);            // mt=
+    lua_pushstring(luaVm, object.getStringClass().c_str());  // mt, class name
+    lua_rawget(luaVm, -2);                    // mt, class
+    lua_remove(luaVm, -2);            // class
+
+    // Assign the class metatable
+    lua_setmetatable(luaVm, -2);            // element
 }

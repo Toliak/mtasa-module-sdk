@@ -6,6 +6,7 @@
 
 #include "Exception.h"
 #include "LuaArgumentType.h"
+#include "LuaObject.h"
 
 #define LUA_VM_ARGUMENT_GET_FUNCTION(templateType, check, typeName) \
 templateType to##typeName() const    \
@@ -42,6 +43,10 @@ public:
 
     explicit LuaArgument(int value)
         : value(new int(value)), type(LuaArgumentType::INTEGER)
+    {}
+
+    explicit LuaArgument(LuaObject value)
+        : value(new LuaObject(std::move(value))), type(LuaArgumentType::OBJECT)
     {}
 
     LuaArgument(const LuaArgument &argument)
@@ -92,6 +97,10 @@ public:
         return *reinterpret_cast<std::string *>(value);
     }
 
+    LUA_VM_ARGUMENT_GET_FUNCTION(LuaObject, LuaArgumentType::OBJECT, Object)
+        return *reinterpret_cast<LuaObject *>(value);
+    }
+
     /**
      * @brief Getter for userdata or lightuserdata
      * @return void pointer
@@ -110,6 +119,21 @@ public:
         return this->type == LuaArgumentType::NIL;
     }
 
+    LuaObject &extractObject(const std::string &stringClass = "")
+    {
+        if (!(this->type == LuaArgumentType::USERDATA || this->type == LuaArgumentType::LIGHTUSERDATA)) {
+            throw LuaUnexpectedArgumentType(LuaArgumentType::LIGHTUSERDATA);
+        }
+
+        this->value = new LuaObject(
+            ObjectId(*reinterpret_cast<unsigned long *>(this->value)),
+            stringClass
+        );
+        this->type = LuaArgumentType::OBJECT;
+
+        return *reinterpret_cast<LuaObject *>(this->value);
+    }
+
     LuaArgumentType getType() const
     {
         return type;
@@ -121,9 +145,9 @@ public:
     }
 
 private:
-    void copy(const LuaArgument &argument);
+    virtual void copy(const LuaArgument &argument);
 
-    void destroy() noexcept;
+    virtual void destroy() noexcept;
 
     void *value;
     LuaArgumentType type;

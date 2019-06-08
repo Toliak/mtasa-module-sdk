@@ -12,11 +12,9 @@ static const std::unordered_map<LuaArgumentType, std::string> STRING_TYPE = {
     {LuaArgumentType::LIGHTUSERDATA, "Light userdata"},
     {LuaArgumentType::NUMBER, "Number"},
     {LuaArgumentType::STRING, "String"},
-    {LuaArgumentType::TABLE, "Table"},
-    {LuaArgumentType::FUNCTION, "Function"},
     {LuaArgumentType::USERDATA, "Userdata"},
-    {LuaArgumentType::THREAD, "Thread"},
     {LuaArgumentType::INTEGER, "Integer"},
+    {LuaArgumentType::OBJECT, "Object"},
 };
 
 class LuaException: public std::exception
@@ -112,5 +110,13 @@ public:
 
 private:
     LuaArgumentType expectedType;
+};
+
+class LuaObjectException: public LuaException
+{
+public:
+    const char *what() const noexcept override = 0;
+
+    ~LuaObjectException() override = default;
 };
 

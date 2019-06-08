@@ -19,6 +19,8 @@ void LuaArgument::copy(const LuaArgument &argument)
         this->value = new std::string(*reinterpret_cast<std::string *>(argument.value));
     } else if (type == LuaArgumentType::LIGHTUSERDATA || type == LuaArgumentType::USERDATA) {
         this->value = argument.value;
+    } else if (type == LuaArgumentType::OBJECT) {
+        this->value = new LuaObject(*reinterpret_cast<LuaObject*>(argument.value));
     } else {
         this->value = nullptr;
     }
@@ -38,5 +40,7 @@ void LuaArgument::destroy() noexcept
         delete reinterpret_cast<int *>(value);
     } else if (type == LuaArgumentType::STRING) {
         delete reinterpret_cast<std::string *>(value);
+    } else if (type == LuaArgumentType::OBJECT) {
+        delete reinterpret_cast<LuaObject *>(value);
     }
 }

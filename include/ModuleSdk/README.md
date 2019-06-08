@@ -21,3 +21,7 @@
 
 * Add it to parseArgument methods
 * Add it to pushArgument method
+
+### [Exception.h](include/ModuleSdk/Exception.h)
+
+* Add it to ``STRING_TYPE``

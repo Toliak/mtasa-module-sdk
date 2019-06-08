@@ -81,7 +81,15 @@ public:
      */
     LuaArgument parseArgument(int index, LuaArgumentType type, bool force = false) const;
 
+    virtual ~LuaVmExtended() = default;
+
 private:
+
+    /**
+     * @author https://github.com/multitheftauto/mtasa-blue/blob/master/Server/mods/deathmatch/logic/lua/LuaCommon.cpp
+     */
+    void pushObject(const LuaObject &object);
+
     void captureArguments()
     {
         if (!arguments.empty()) {
