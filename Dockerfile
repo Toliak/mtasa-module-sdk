@@ -10,7 +10,6 @@ RUN yum -y install \
             tar \
             make \
             screen \
-            nano \
             zlib-devel \
             centos-release-scl && \
     yum -y install \
@@ -33,9 +32,7 @@ RUN yum -y install \
     popd && \
     mkdir -p tests/mtasa_server && \
     mkdir -p tests/mtasa_server/mods/deathmatch && \
-    #rsync -avh --ignore-existing /tmp/mtasa/multitheftauto_linux_x64/ tests/mtasa_server/ && \
     cp -nr /tmp/mtasa/multitheftauto_linux_x64/* tests/mtasa_server/ && \
-    #rsync -avh --ignore-existing /tmp/mtasa/baseconfig/ tests/mtasa_server/mods/deathmatch/ && \
     cp -nr /tmp/mtasa/baseconfig/* tests/mtasa_server/mods/deathmatch/ && \
     ./build.sh TEST ON && \
     find . | xargs chown module_sdk:module_sdk && \
@@ -44,16 +41,6 @@ RUN yum -y install \
     rm -rf .git && \
     rm -rf /tmp/mtasa
 
-# TODO: Remove nano, clear install
-
 USER module_sdk
-
-# Compile and install MTA-SA module
-# RUN ./build.sh TEST
-
-# RUN yum clean all && \
-#     rm -rf /var/cache/yum && \
-#     rm -rf .git && \
-#     rm -rf /tmp/mtasa
-
-CMD /bin/bash
+WORKDIR /home/module_sdk/tests
+CMD ./run-tests.sh

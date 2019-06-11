@@ -1,7 +1,7 @@
 local TEST_FUNCTIONS = {
     {
         name = "moduleSdkTest1",
-        expected = {"Yesn't!"}
+        expected = {"Yes!"}
     },
 }
 
