@@ -1,0 +1,6 @@
+language: cpp
+services:
+  - docker
+script:
+  - docker build . --tag module_sdk_tests
+  - docker run --rm -it module_sdk_tests

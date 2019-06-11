@@ -30,6 +30,8 @@
 
 #pragma once
 
+#include "utils.h"
+
 EXTERN_C_BLOCK_START
 
 bool ImportLua();
