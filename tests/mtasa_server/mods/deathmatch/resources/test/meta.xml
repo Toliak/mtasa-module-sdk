@@ -1,6 +1,7 @@
 <meta>
     <info type="script" />
 
+    <script src="core.lua" type="server" />
     <script src="moduleTest.lua" type="server" />
 
     <oop>true</oop>
