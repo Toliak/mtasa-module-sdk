@@ -22,15 +22,19 @@ function checkTable(left, right)
     return true
 end
 
-function runTest(name, excepted)
+function runTest(name, input, excepted)
     TestsInfo.total = TestsInfo.total + 1
     iprint("Test " .. name)
 
-    local result = {Tests[name]()}
+    local result = {Tests[name](unpack(input))}
     local status = checkTable(result, excepted)
     iprint(status, TestsInfo.success)
     TestsInfo.success = TestsInfo.success + (status and 1 or 0)
-    iprint(status and "Test success" or "Test failed")
+    if status then
+        iprint("Test success")
+    else
+        iprint("Test failed. Expected: ", excepted, "Got: ", result)
+    end
 end
 
 function testStatus()

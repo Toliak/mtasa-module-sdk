@@ -41,7 +41,12 @@ EXTERN_C void RegisterFunctions(lua_State *luaVM)
         return;
     }
 
-    pModuleManager->RegisterFunction(luaVM, "moduleSdkTest1", TestFunction::test1);
+    pModuleManager->RegisterFunction(luaVM, "test_simple", TestFunction::simple);
+    pModuleManager->RegisterFunction(luaVM, "test_simpleList", TestFunction::simpleList);
+    pModuleManager->RegisterFunction(luaVM, "test_echo", TestFunction::echo);
+    pModuleManager->RegisterFunction(luaVM, "test_isNumber", TestFunction::isNumber);
+    pModuleManager->RegisterFunction(luaVM, "test_isString", TestFunction::isString);
+    pModuleManager->RegisterFunction(luaVM, "test_echoElement", TestFunction::echoElement);
 }
 
 EXTERN_C bool DoPulse()
