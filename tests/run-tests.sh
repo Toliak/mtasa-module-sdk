@@ -1,34 +1,51 @@
 #!/bin/bash
-SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-mkdir -p ${SOURCE_DIR}/mtasa_server/mods/deathmatch/logs
-touch ${SOURCE_DIR}/mtasa_server/mods/deathmatch/logs/server.log
-screen -dmS mtasa ${SOURCE_DIR}/mtasa_server/mta-server64
+function globalClear() {
+    screen -X -S mtasa quit
+}
 
-status=$(cat ${SOURCE_DIR}/mtasa_server/mods/deathmatch/logs/server.log | grep "\[TEST TOTAL\]")
-while [[ -z ${status} ]]; do
-    sleep 1s
-    if [[ -z $(ps -A | grep mta-server64) ]]; then
-        echo MTA-SA server proccess not found
-        exit 1
-    fi
-    if [[ ! -z $(cat ${SOURCE_DIR}/mtasa_server/mods/deathmatch/logs/server.log | grep "ERROR: ") ]]; then
-        echo MTA-SA script error
-        tail ${SOURCE_DIR}/mtasa_server/mods/deathmatch/logs/server.log
-        exit 1
-    fi
-    status=$(cat ${SOURCE_DIR}/mtasa_server/mods/deathmatch/logs/server.log | grep "\[TEST TOTAL\]")
-done
-
-status_ok=$(echo $status | grep "\[TEST TOTAL\]\[OK\]")
-if [[ -z ${status_ok} ]]; then
-    echo Test failed
-    tail -n 25 ${SOURCE_DIR}/mtasa_server/mods/deathmatch/logs/server.log
+function exitFail() {
+    globalClear
     exit 1
-else
-    echo Test passed
+}
+
+function exitSuccess() {
+    globalClear
+    exit 0
+}
+
+SOURCE_DIR=$( cd $( dirname ${BASH_SOURCE[0]} ) >/dev/null 2>&1 && pwd )
+SERVER_FOLDER=${SOURCE_DIR}/mtasa_server
+if [[ ! -z $1 ]]; then
+    SERVER_FOLDER=$1
 fi
 
-screen -X -S mtasa quit
+mkdir -p ${SERVER_FOLDER}/mods/deathmatch/logs
+rm -fv ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
+touch ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
+screen -dmS mtasa ${SERVER_FOLDER}/mta-server64
 
-exit 0
+status=$(cat ${SERVER_FOLDER}/mods/deathmatch/logs/server.log | grep "\[TEST TOTAL\]")
+while [[ -z ${status} ]]; do
+    sleep 0.5s
+    if [[ -z $(ps -A | grep mta-server64) ]]; then
+        echo MTA-SA server proccess not found
+        exitFail
+    fi
+    if [[ ! -z $(cat ${SERVER_FOLDER}/mods/deathmatch/logs/server.log | grep "ERROR: ") ]]; then
+        echo MTA-SA script error
+        tail ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
+        exitFail
+    fi
+    status=$(cat ${SERVER_FOLDER}/mods/deathmatch/logs/server.log | grep "\[TEST TOTAL\]")
+done
+
+status_ok=$(echo ${status} | grep "\[TEST TOTAL\]\[OK\]")
+if [[ -z ${status_ok} ]]; then
+    echo Tests failed
+    tail -n 25 ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
+    exitFail
+else
+    echo Tests passed
+    exitSuccess
+fi
