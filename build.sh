@@ -1,5 +1,5 @@
 #!/bin/bash
-mkdir -p cmake-build-release
+mkdir -pv cmake-build-release
 if [[ $1 = "TEST" ]]; then
     printf "Configure with test\n"
     cmake -H. -Bcmake-build-release -DCMAKE_BUILD_TYPE=Release -DBUILD_TEST=ON

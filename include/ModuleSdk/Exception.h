@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <exception>
+#include <cstring>
 
 #include "LuaArgumentType.h"
 
@@ -17,13 +18,75 @@ static const std::unordered_map<LuaArgumentType, std::string> STRING_TYPE = {
     {LuaArgumentType::OBJECT, "Object"},
 };
 
+
 class LuaException: public std::exception
 {
-public:
-    const char *what() const noexcept override = 0;
+    char *message = nullptr;
 
-    ~LuaException() override = default;
+protected:
+    virtual void copy(const LuaException &luaException) noexcept
+    {
+        if (!luaException.what()) {
+            return;
+        }
+
+        destroy();
+        this->message = new char[std::strlen(luaException.message)];
+        std::strcpy(this->message, luaException.message);
+    }
+
+    virtual void destroy() noexcept
+    {
+        delete[] message;
+    }
+
+public:
+    LuaException() = default;
+
+    LuaException(const LuaException &luaException) noexcept
+    {
+        destroy();
+        copy(luaException);
+    }
+
+    LuaException(LuaException &&luaException) noexcept
+    {
+        this->message = luaException.message;
+        luaException.message = nullptr;
+    }
+
+    LuaException &operator=(const LuaException &luaException)
+    {
+        destroy();
+        copy(luaException);
+        return *this;
+    }
+
+    LuaException &operator=(LuaException &&luaException) noexcept
+    {
+        this->message = luaException.message;
+        luaException.message = nullptr;
+        return *this;
+    }
+
+    void setMessage(const std::string &newMessage) noexcept
+    {
+        destroy();
+        this->message = new char[newMessage.size()];
+        std::strcpy(this->message, newMessage.c_str());
+    }
+
+    const char *what() const noexcept override
+    {
+        return this->message;
+    }
+
+    ~LuaException() override
+    {
+        destroy();
+    }
 };
+
 
 class LuaBadType: public LuaException
 {
@@ -36,64 +99,63 @@ public:
     ~LuaBadType() override = default;
 };
 
+
 class LuaUnexpectedType: public LuaException
 {
+
 public:
-    LuaUnexpectedType() = default;
+    using LuaException::LuaException;
+
+    explicit LuaUnexpectedType(LuaArgumentType expectedType)
+    {
+        setMessage(
+            "Expected " + STRING_TYPE.at(expectedType)
+        );
+    }
 
     LuaUnexpectedType(LuaArgumentType expectedType, LuaArgumentType receivedType)
-        : expectedType(expectedType),
-          receivedType(receivedType),
-          typesInfo(true)
-    {}
+    {
+        setMessage(
+            "Expected " + STRING_TYPE.at(expectedType) + ", got " + STRING_TYPE.at(receivedType)
+        );
+    }
 
     LuaUnexpectedType(LuaArgumentType expectedType, LuaArgumentType receivedType, int index)
-        : index(index),
-          expectedType(expectedType),
-          receivedType(receivedType),
-          typesInfo(true),
-          indexInfo(true)
-    {}
+    {
+        setMessage(
+            "Expected " + STRING_TYPE.at(expectedType) + ", got " + STRING_TYPE.at(receivedType)
+                + " at argument " + std::to_string(index)
+        );
+    }
 
     const char *what() const noexcept override
     {
-        if (!typesInfo) {
+        const char *message = LuaException::what();
+
+        if (!message) {
             return "Unexpected argument type";
         }
-
-        if (!indexInfo) {
-            std::string result =
-                "Expected " + STRING_TYPE.at(this->expectedType) + ", got " + STRING_TYPE.at(this->receivedType);
-            return result.c_str();
-        }
-
-        std::string result =
-            "Expected " + STRING_TYPE.at(this->expectedType) + ", got " + STRING_TYPE.at(this->receivedType)
-                + " at argument " + std::to_string(index);
-        return result.c_str();
+        return message;
     }
 
     ~LuaUnexpectedType() override = default;
-
-private:
-    bool typesInfo = false;
-    bool indexInfo = false;
-    int index = 0;
-    LuaArgumentType expectedType = LuaArgumentType::NIL;
-    LuaArgumentType receivedType = LuaArgumentType::NIL;
 };
+
 
 class LuaArgumentException: public LuaException
 {
 public:
-    const char *what() const noexcept override = 0;
+    using LuaException::LuaException;
 
     ~LuaArgumentException() override = default;
 };
 
+
 class LuaUnexpectedArgumentType: public LuaArgumentException
 {
 public:
+    using LuaArgumentException::LuaArgumentException;
+
     LuaUnexpectedArgumentType() = delete;
 
     explicit LuaUnexpectedArgumentType(LuaArgumentType expectedType)
@@ -112,11 +174,4 @@ private:
     LuaArgumentType expectedType;
 };
 
-class LuaObjectException: public LuaException
-{
-public:
-    const char *what() const noexcept override = 0;
-
-    ~LuaObjectException() override = default;
-};
 

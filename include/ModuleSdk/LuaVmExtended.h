@@ -47,7 +47,7 @@ public:
      * @return Size of pushed list
      */
     template<typename IT>
-    int pushArguments(IT begin, IT end)
+    int pushArguments(IT begin, IT end) const
     {
         int size = 0;
         for (IT it = begin; it != end; it++) {
@@ -60,7 +60,7 @@ public:
     /**
      * @brief Push single argument to lua VM
      */
-    void pushArgument(const LuaArgument &argument);
+    void pushArgument(const LuaArgument &argument) const;
 
     /**
     * @brief Parse argument from lua VM (auto type detecting)
@@ -88,7 +88,7 @@ private:
     /**
      * @author https://github.com/multitheftauto/mtasa-blue/blob/master/Server/mods/deathmatch/logic/lua/LuaCommon.cpp
      */
-    void pushObject(const LuaObject &object);
+    void pushObject(const LuaObject &object) const;
 
     void captureArguments()
     {

@@ -27,7 +27,7 @@ std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgument
     return result;
 }
 
-void LuaVmExtended::pushArgument(const LuaArgument &argument)
+void LuaVmExtended::pushArgument(const LuaArgument &argument) const
 {
     if (argument.getType() == LuaArgumentType::NIL) {
         lua_pushnil(luaVm);
@@ -90,7 +90,7 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
         }
 
         if (!checker(luaVm, index)) {
-            throw LuaUnexpectedType();
+            throw LuaUnexpectedType(type);
         }
     }
 
@@ -109,7 +109,7 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
     return LuaArgument();
 }
 
-void LuaVmExtended::pushObject(const LuaObject &object)
+void LuaVmExtended::pushObject(const LuaObject &object) const
 {
     auto *pointer = reinterpret_cast<void *>(object.getObjectId().id);
 

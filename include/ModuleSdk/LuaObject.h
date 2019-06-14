@@ -25,7 +25,7 @@ public:
 
     void setObjectId(const ObjectId &newObjectId)
     {
-        LuaObject::objectId = newObjectId;
+        objectId = newObjectId;
     }
 
     const std::string &getStringClass() const
@@ -33,9 +33,9 @@ public:
         return stringClass;
     }
 
-    void setStringClass(const std::string &stringClass)
+    void setStringClass(const std::string &newStringClass)
     {
-        LuaObject::stringClass = stringClass;
+        stringClass = newStringClass;
     }
 
 

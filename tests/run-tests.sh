@@ -25,6 +25,7 @@ rm -fv ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
 touch ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
 screen -dmS mtasa ${SERVER_FOLDER}/mta-server64
 
+sleep 0.5s
 status=$(cat ${SERVER_FOLDER}/mods/deathmatch/logs/server.log | grep "\[TEST TOTAL\]")
 while [[ -z ${status} ]]; do
     sleep 0.5s
