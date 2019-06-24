@@ -15,7 +15,7 @@ function exitSuccess() {
 }
 
 SOURCE_DIR=$( cd $( dirname ${BASH_SOURCE[0]} ) >/dev/null 2>&1 && pwd )
-SERVER_FOLDER=${SOURCE_DIR}/mtasa_server
+SERVER_FOLDER=${SOURCE_DIR}
 if [[ ! -z $1 ]]; then
     SERVER_FOLDER=$1
 fi
