@@ -81,9 +81,59 @@ public:
      */
     LuaArgument parseArgument(int index, LuaArgumentType type, bool force = false) const;
 
+    void clearStack() const
+    {
+        lua_settop(luaVm, 0);
+    }
+
+    std::vector<LuaArgument>
+    call(const std::string &function, const std::list<LuaArgument> &functionArgs, int returnSize = 0) const
+    {
+        callFunction(function, functionArgs, returnSize);
+        return getCallReturn(returnSize);
+    }
+
     virtual ~LuaVmExtended() = default;
 
 private:
+    void callFunction(const std::string &function, const std::list<LuaArgument> &functionArgs, int returnSize) const
+    {
+        lua_pushstring(luaVm, function.c_str());
+        lua_gettable(luaVm, LUA_GLOBALSINDEX);
+        this->pushArguments(functionArgs.cbegin(), functionArgs.cend());
+
+        int state = lua_pcall(luaVm, functionArgs.size(), returnSize, 0);
+
+        if (state == LUA_ERRRUN || state == LUA_ERRMEM) {
+            throw LuaCallException(state);
+        }
+    }
+
+    std::vector<LuaArgument> getCallReturn(int amount = 0) const
+    {
+        if (amount <= 0) {
+            return {};
+        }
+
+        std::vector<LuaArgument> result(amount);
+        for (int i = 0; i < amount; i++) {
+            int luaIndex = -amount + i;
+            result[i] = parseArgument(luaIndex);
+        }
+        return result;
+    }
+
+    std::vector<LuaArgument> getCallReturn(const std::list<LuaArgumentType> &types) const
+    {
+        std::vector<LuaArgument> result(types.size());
+        int index = -types.size();
+        auto listIterator = types.cbegin();
+        auto resultIterator = result.begin();
+        for (; lua_type(luaVm, index) != LUA_TNONE && listIterator != types.cend(); index++, listIterator++) {
+            *(resultIterator++) = parseArgument(index, *listIterator);
+        }
+        return result;
+    }
 
     /**
      * @author https://github.com/multitheftauto/mtasa-blue/blob/master/Server/mods/deathmatch/logic/lua/LuaCommon.cpp

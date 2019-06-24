@@ -108,21 +108,21 @@ public:
 
     explicit LuaUnexpectedType(LuaArgumentType expectedType)
     {
-        setMessage(
+        this->setMessage(
             "Expected " + STRING_TYPE.at(expectedType)
         );
     }
 
     LuaUnexpectedType(LuaArgumentType expectedType, LuaArgumentType receivedType)
     {
-        setMessage(
+        this->setMessage(
             "Expected " + STRING_TYPE.at(expectedType) + ", got " + STRING_TYPE.at(receivedType)
         );
     }
 
     LuaUnexpectedType(LuaArgumentType expectedType, LuaArgumentType receivedType, int index)
     {
-        setMessage(
+        this->setMessage(
             "Expected " + STRING_TYPE.at(expectedType) + ", got " + STRING_TYPE.at(receivedType)
                 + " at argument " + std::to_string(index)
         );
@@ -174,4 +174,14 @@ private:
     LuaArgumentType expectedType;
 };
 
+class LuaCallException: public LuaException
+{
+public:
+    using LuaException::LuaException;
+
+    explicit LuaCallException(int errorId)
+    {
+        this->setMessage("Error code: " + std::to_string(errorId));
+    }
+};
 

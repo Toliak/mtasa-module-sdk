@@ -6,7 +6,7 @@ std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgument
 
     int index = 1;
     auto listIterator = types.cbegin();
-    for (; lua_type(luaVm, index) != LUA_TNONE && listIterator != types.cend(); index++) {
+    for (; lua_type(luaVm, index) != LUA_TNONE && listIterator != types.cend(); index++, listIterator++) {
         try {
             result[index - 1] = parseArgument(index, *listIterator);
         } catch (LuaException &) {
@@ -16,7 +16,6 @@ std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgument
                 index
             );
         }
-        listIterator++;
     }
 
     if (index - 1 != types.size()) {
