@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  builder:
+    build:
+      context: .
+      args:
+        BUILD_ARGS: test
+        GROUP_ID: ${GROUP_ID}
+        USER_ID: ${USER_ID}
+    volumes:
+      - mtasa_modules:/home/builder/bin
+  environment:
+    build:
+      context: ./tests/environment/
+      args:
+        GROUP_ID: ${GROUP_ID}
+        USER_ID: ${USER_ID}
+    volumes:
+      - ./tests/environment/deathmatch/:/home/mtasa/mods/deathmatch
+      - mtasa_modules:/home/mtasa/x64/modules
+
+volumes:
+  mtasa_modules:
