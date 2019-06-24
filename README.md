@@ -1,8 +1,7 @@
 ## Tests
 
-Tests require docker
+Tests require docker-compose
 
 ```ShellSession
-$ docker build . --tag module_sdk_tests
-$ docker run --rm -it module_sdk_tests
+./compose-test.sh
 ```
