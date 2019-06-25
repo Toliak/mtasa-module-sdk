@@ -8,10 +8,12 @@ ARG BUILD_ARGS
 RUN apt-get -y update && \
     apt-get -y install gcc g++ cmake make && \
     ./build.sh $BUILD_ARGS && \
+    chown -R builder:builder cmake-build-release && \
     apt-get -y purge gcc g++ cmake make && \
     apt-get -y autoremove && \
     apt-get -y clean && \
-    rm -rf /var/lib/apt
+    rm -rf /var/lib/apt && \
+    rm -rf bin
 
 USER builder
 VOLUME /home/builder/bin
