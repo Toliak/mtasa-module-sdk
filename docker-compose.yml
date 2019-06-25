@@ -8,13 +8,13 @@ services:
         BUILD_ARGS: test
     user: ${USER_ID}:${GROUP_ID}
     volumes:
-      - mtasa_modules:/home/builder/bin
+      - ./cmake-build-modules:/home/builder/bin
   environment:
     build: ./tests/environment/
     user: ${USER_ID}:${GROUP_ID}
     volumes:
       - ./tests/environment/deathmatch/:/home/mtasa/mods/deathmatch
-      - mtasa_modules:/home/mtasa/x64/modules
+      - ./cmake-build-modules:/home/mtasa/x64/modules
 
 volumes:
   mtasa_modules:
