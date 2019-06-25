@@ -46,6 +46,14 @@ local TEST_FUNCTIONS = {
         input = {root},
         expected = {root},
     },
+    {
+        name = "test_simpleTable",
+        input = {},
+        expected = {{{
+                        name="name",
+                        surname="surname"
+                    }}},
+    }
 }
 
 addEventHandler("onResourceStart", resourceRoot, function()

@@ -14,8 +14,12 @@ function checkTable(left, right)
         return false
     end
 
-    for i, v in ipairs(left) do
-        if v ~= right[i] then
+    for i, v in pairs(left) do
+        if type(v) == 'table' then
+            if not checkTable(v, right[i]) then
+                return false
+            end
+        elseif v ~= right[i] then
             return false
         end
     end
