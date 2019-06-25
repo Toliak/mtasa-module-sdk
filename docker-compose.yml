@@ -6,16 +6,12 @@ services:
       context: .
       args:
         BUILD_ARGS: test
-        GROUP_ID: ${GROUP_ID}
-        USER_ID: ${USER_ID}
+    user: ${USER_ID}:${GROUP_ID}
     volumes:
       - mtasa_modules:/home/builder/bin
   environment:
-    build:
-      context: ./tests/environment/
-      args:
-        GROUP_ID: ${GROUP_ID}
-        USER_ID: ${USER_ID}
+    build: ./tests/environment/
+    user: ${USER_ID}:${GROUP_ID}
     volumes:
       - ./tests/environment/deathmatch/:/home/mtasa/mods/deathmatch
       - mtasa_modules:/home/mtasa/x64/modules

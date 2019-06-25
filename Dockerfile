@@ -1,12 +1,6 @@
 FROM debian:9.9-slim
 
-ARG GROUP_ID
-ARG USER_ID
-ENV GROUP_ID=1000
-ENV USER_ID=1000
-
-RUN groupadd -g ${GROUP_ID} builder && \
-        useradd -u ${USER_ID} -g builder builder
+RUN useradd -ms /bin/bash builder
 WORKDIR /home/builder
 COPY --chown=builder:builder . .
 
