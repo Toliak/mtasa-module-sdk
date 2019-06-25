@@ -51,7 +51,7 @@ local TEST_FUNCTIONS = {
         input = {},
         expected = {{{
                         name="name",
-                        surname="surname"
+                        surname="surnameaaaa"
                     }}},
     }
 }
