@@ -7,7 +7,6 @@
 - [x] Userdata
 - [x] Lightuserdata
 - [x] Nil
-- [ ] Function
 
 ## How to add type from Lua
 

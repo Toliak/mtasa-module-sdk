@@ -1,7 +1,14 @@
 local TEST_ELEMENTS = {
     Ped(0,0,0,0),
     Ped(0,5,6,78),
+    Ped(0,9,14,778),
 }
+
+TEST_ELEMENTS[2].dimension = 523
+
+function returnFive()
+    return 5
+end
 
 local TEST_FUNCTIONS = {
     {
@@ -122,6 +129,31 @@ local TEST_FUNCTIONS = {
             TEST_ELEMENTS[2]:getPosition().y,
             TEST_ELEMENTS[2]:getPosition().z,
         },
+    },
+    {
+        name = "test_callGetElementPosition",
+        description = "Call getElementPosition for multiple arguments",
+        input = {TEST_ELEMENTS[2], TEST_ELEMENTS[3]},
+        expected = {
+            TEST_ELEMENTS[2]:getPosition().x,
+            TEST_ELEMENTS[2]:getPosition().y,
+            TEST_ELEMENTS[2]:getPosition().z,
+            TEST_ELEMENTS[3]:getPosition().x,
+            TEST_ELEMENTS[3]:getPosition().y,
+            TEST_ELEMENTS[3]:getPosition().z,
+        },
+    },
+    {
+        name = "test_call",
+        description = "Call element:getDimension",
+        input = {TEST_ELEMENTS[2]},
+        expected = {TEST_ELEMENTS[2]:getDimension()},
+    },
+    {
+        name = "test_pushFunction",
+        description = "Call function after parsing and pushing (C++)",
+        input = {returnFive},
+        expected = {returnFive()},
     },
 }
 

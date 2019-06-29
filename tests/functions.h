@@ -14,5 +14,6 @@ namespace TestFunction
     int strictTypes(lua_State *);
     int simpleTable(lua_State *);
     int callGetElementPosition(lua_State *);
-    int callElementGetPosition(lua_State *);
+    int call(lua_State *);
+    int pushFunction(lua_State *);
 }

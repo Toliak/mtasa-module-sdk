@@ -19,6 +19,12 @@ templateType to##typeName() const    \
 class LuaArgument
 {
 public:
+    enum PointerType
+    {
+        POINTER_USERDATA = LuaArgumentType::USERDATA,
+        POINTER_LIGHTUSERDATA = LuaArgumentType::LIGHTUSERDATA,
+    };
+
     explicit LuaArgument()
         : value(nullptr), type(LuaArgumentType::NIL)
     {}
@@ -35,10 +41,10 @@ public:
         : value(new std::string(std::move(value))), type(LuaArgumentType::STRING)
     {}
 
-    explicit LuaArgument(void *value, bool isLight = false)
+    explicit LuaArgument(void *value, PointerType type = POINTER_USERDATA)
         :
         value(value),
-        type(isLight ? LuaArgumentType::LIGHTUSERDATA : LuaArgumentType::USERDATA)
+        type(static_cast<LuaArgumentType>(type))
     {}
 
     explicit LuaArgument(int value)
@@ -107,7 +113,10 @@ public:
      */
     void *toPointer() const
     {
-        if (!(this->type == LuaArgumentType::LIGHTUSERDATA || this->type == LuaArgumentType::USERDATA)) {
+        if (!(
+            this->type == LuaArgumentType::LIGHTUSERDATA
+                || this->type == LuaArgumentType::USERDATA
+        )) {
             throw LuaUnexpectedArgumentType(LuaArgumentType::LIGHTUSERDATA, this->type);
         }
 

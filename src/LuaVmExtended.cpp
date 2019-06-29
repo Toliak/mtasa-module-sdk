@@ -44,6 +44,8 @@ void LuaVmExtended::pushArgument(const LuaArgument &argument) const
         lua_pushlightuserdata(luaVm, argument.toPointer());
     } else if (argument.getType() == LuaArgumentType::OBJECT) {
         this->pushObject(argument.toObject());
+    } else {
+        throw LuaUnexpectedPushType(argument.getType());
     }
 }
 
@@ -72,12 +74,20 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
         {LuaArgumentType::STRING, lua_isstring},
         {LuaArgumentType::USERDATA, lua_isuserdata},
 
-        {LuaArgumentType::BOOLEAN, [](lua_State *vm, int index) -> int {
-            return lua_isboolean(vm, index);
-        }},
-        {LuaArgumentType::NIL, [](lua_State *vm, int index) -> int {
-            return lua_isnil(vm, index);
-        }},
+        {
+            LuaArgumentType::BOOLEAN,
+            [](lua_State *vm, int index) -> int
+            {
+                return lua_isboolean(vm, index);
+            }
+        },
+        {
+            LuaArgumentType::NIL,
+            [](lua_State *vm, int index) -> int
+            {
+                return lua_isnil(vm, index);
+            }
+        },
     };
 
     if (!force) {

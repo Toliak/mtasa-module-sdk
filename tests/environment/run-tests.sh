@@ -35,7 +35,7 @@ while [[ -z ${status} ]]; do
     fi
     if [[ ! -z $(cat ${SERVER_FOLDER}/mods/deathmatch/logs/server.log | grep "ERROR: ") ]]; then
         echo MTA-SA script error
-        tail ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
+        cat ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
         exitFail
     fi
     status=$(cat ${SERVER_FOLDER}/mods/deathmatch/logs/server.log | grep "\[TEST TOTAL\]")

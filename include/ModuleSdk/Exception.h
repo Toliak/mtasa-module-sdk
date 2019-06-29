@@ -137,6 +137,21 @@ public:
     ~LuaUnexpectedType() override = default;
 };
 
+class LuaUnexpectedPushType: public LuaException
+{
+public:
+    using LuaException::LuaException;
+
+    explicit LuaUnexpectedPushType(LuaArgumentType receivedType)
+    {
+        this->setMessage(
+            "Got unexpected type " + STRING_TYPE.at(receivedType)
+        );
+    }
+
+    ~LuaUnexpectedPushType() override = default;
+};
+
 class LuaArgumentException: public LuaException
 {
 public:
@@ -165,7 +180,7 @@ class LuaCallException: public LuaException
 public:
     using LuaException::LuaException;
 
-    explicit LuaCallException(int errorId, const std::string& message = "")
+    explicit LuaCallException(int errorId, const std::string &message = "")
     {
         this->setMessage("Error code: " + std::to_string(errorId) + ". Message: " + message);
     }

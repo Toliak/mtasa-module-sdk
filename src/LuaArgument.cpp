@@ -17,10 +17,12 @@ void LuaArgument::copy(const LuaArgument &argument)
         this->value = new int(*reinterpret_cast<int *>(argument.value));
     } else if (type == LuaArgumentType::STRING) {
         this->value = new std::string(*reinterpret_cast<std::string *>(argument.value));
-    } else if (type == LuaArgumentType::LIGHTUSERDATA || type == LuaArgumentType::USERDATA) {
+    } else if (
+        type == LuaArgumentType::LIGHTUSERDATA
+            || type == LuaArgumentType::USERDATA) {
         this->value = argument.value;
     } else if (type == LuaArgumentType::OBJECT) {
-        this->value = new LuaObject(*reinterpret_cast<LuaObject*>(argument.value));
+        this->value = new LuaObject(*reinterpret_cast<LuaObject *>(argument.value));
     } else {
         this->value = nullptr;
     }

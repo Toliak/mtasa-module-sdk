@@ -32,7 +32,6 @@ function runTest(name, input, excepted, description)
 
     local result = {Tests[name](unpack(input))}
     local status = checkTable(result, excepted)
-    iprint(status, TestsInfo.success)
     TestsInfo.success = TestsInfo.success + (status and 1 or 0)
     if status then
         iprint("Test success")

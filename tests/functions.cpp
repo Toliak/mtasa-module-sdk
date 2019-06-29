@@ -147,18 +147,25 @@ int callGetElementPosition(lua_State *luaVm)
 {
     LuaVmExtended lua(luaVm);
 
-    LuaArgument element;
+    std::vector<LuaArgument> elements;
     try {
-        element = lua.parseArgument(1, LuaArgumentType::USERDATA);
-        element.extractObject();
+        elements = lua.getArguments();
+        for (LuaArgument &element : elements) {
+            element.extractObject();
+        }
     } catch (const LuaException &) {
         lua.pushArgument(LuaArgument(false));
         return 1;
     }
 
-    std::vector<LuaArgument> callReturn;
+    std::list<LuaArgument> callReturn;
     try {
-        callReturn = lua.call("getElementPosition", {element}, 3);
+        for (LuaArgument &element : elements) {
+            std::vector<LuaArgument> returns = lua.call("getElementPosition", {element}, 3);
+            for (const LuaArgument &v : returns) {
+                callReturn.push_back(v);
+            }
+        }
     } catch (const LuaException &e) {
         lua.pushArgument(LuaArgument(std::string(e.what())));
         return 1;
@@ -168,30 +175,34 @@ int callGetElementPosition(lua_State *luaVm)
     return callReturn.size();
 }
 
-int callElementGetPosition(lua_State *luaVm)
+int call(lua_State *luaVm)
 {
-    // TODO: wip
+    LuaVmExtended lua(luaVm);
+    LuaArgument element = lua.parseArgument(1, LuaArgumentType::USERDATA);
+    element.extractObject();
+
+    lua_getglobal(luaVm, "Element");
+    lua_getfield(luaVm, -1, "getDimension");
+    lua.pushArgument(element);
+
+    lua_pcall(luaVm, 1, 1, 0);
+    lua.pushArgument(lua.parseArgument(-1, LuaArgumentType::INTEGER));
+    return 1;
+}
+
+int pushFunction(lua_State *luaVm)
+{
     LuaVmExtended lua(luaVm);
 
-    LuaArgument element;
-    try {
-        element = lua.parseArgument(1, LuaArgumentType::USERDATA);
-        element.extractObject();
-    } catch (const LuaException &) {
-        lua.pushArgument(LuaArgument(false));
-        return 1;
-    }
+    int ref = luaL_ref(luaVm, LUA_REGISTRYINDEX);
 
-    std::vector<LuaArgument> callReturn;
-    try {
-        callReturn = lua.call("Element.getPosition", {element}, 1);
-    } catch (const LuaException &e) {
-        lua.pushArgument(LuaArgument(std::string(e.what())));
-        return 1;
-    }
+//    lua.pushArgument(function);
+    lua_rawgeti(luaVm, LUA_REGISTRYINDEX, ref);
+    luaL_unref(luaVm, LUA_REGISTRYINDEX, ref);
 
-    lua.pushArguments(callReturn.cbegin(), callReturn.cend());
-    return callReturn.size();
+    lua_pcall(luaVm, 0, 1, 0);
+    lua.pushArgument(lua.parseArgument(-1, LuaArgumentType::INTEGER));
+    return 1;
 }
 
 }
