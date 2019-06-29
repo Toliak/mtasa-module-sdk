@@ -44,7 +44,7 @@ done
 status_ok=$(echo ${status} | grep "\[TEST TOTAL\]\[OK\]")
 if [[ -z ${status_ok} ]]; then
     echo Tests failed
-    tail -n 25 ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
+    cat ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
     exitFail
 else
     echo Tests passed

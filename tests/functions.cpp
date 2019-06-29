@@ -70,6 +70,12 @@ int echoElement(lua_State *luaVm)
     } catch (const LuaUnexpectedType &) {
         lua.pushArgument(LuaArgument(false));
         return 1;
+    } catch (const LuaUnexpectedArgumentType &) {
+        lua.pushArgument(LuaArgument(false));
+        return 1;
+    } catch (const LuaException &e) {
+        lua.pushArgument(LuaArgument(std::string(e.what())));
+        return 1;
     }
     lua.pushArgument(arg);
     return 1;

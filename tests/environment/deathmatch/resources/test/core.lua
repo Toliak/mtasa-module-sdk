@@ -6,7 +6,6 @@ Tests = {}
 
 function addTest(name)
     Tests[name] = _G[name]
-    iprint(Tests)
 end
 
 function checkTable(left, right)
@@ -26,9 +25,10 @@ function checkTable(left, right)
     return true
 end
 
-function runTest(name, input, excepted)
+function runTest(name, input, excepted, description)
     TestsInfo.total = TestsInfo.total + 1
-    iprint("Test " .. name)
+    iprint('===============[ TEST ]===============')
+    iprint(description .. " (" .. name .. ")")
 
     local result = {Tests[name](unpack(input))}
     local status = checkTable(result, excepted)
@@ -42,6 +42,7 @@ function runTest(name, input, excepted)
 end
 
 function testStatus()
+    iprint('===============[ TOTAL ]===============')
     if TestsInfo.total == TestsInfo.success then
         iprint("[TEST TOTAL][OK] All tests passed!")
     else
