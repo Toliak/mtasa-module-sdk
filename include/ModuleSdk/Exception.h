@@ -18,7 +18,6 @@ static const std::unordered_map<LuaArgumentType, std::string> STRING_TYPE = {
     {LuaArgumentType::OBJECT, "Object"},
 };
 
-
 class LuaException: public std::exception
 {
     char *message = nullptr;
@@ -87,7 +86,6 @@ public:
     }
 };
 
-
 class LuaBadType: public LuaException
 {
 public:
@@ -99,10 +97,8 @@ public:
     ~LuaBadType() override = default;
 };
 
-
 class LuaUnexpectedType: public LuaException
 {
-
 public:
     using LuaException::LuaException;
 
@@ -141,7 +137,6 @@ public:
     ~LuaUnexpectedType() override = default;
 };
 
-
 class LuaArgumentException: public LuaException
 {
 public:
@@ -150,7 +145,6 @@ public:
     ~LuaArgumentException() override = default;
 };
 
-
 class LuaUnexpectedArgumentType: public LuaArgumentException
 {
 public:
@@ -158,20 +152,12 @@ public:
 
     LuaUnexpectedArgumentType() = delete;
 
-    explicit LuaUnexpectedArgumentType(LuaArgumentType expectedType)
-        : expectedType(expectedType)
-    {}
-
-    const char *what() const noexcept override
+    explicit LuaUnexpectedArgumentType(LuaArgumentType expectedType, LuaArgumentType recievedType)
     {
-        std::string result = "Expected " + STRING_TYPE.at(this->expectedType);
-        return result.c_str();
+        this->setMessage("Expected " + STRING_TYPE.at(expectedType) + ", got " + STRING_TYPE.at(recievedType));
     }
 
     ~LuaUnexpectedArgumentType() override = default;
-
-private:
-    LuaArgumentType expectedType;
 };
 
 class LuaCallException: public LuaException

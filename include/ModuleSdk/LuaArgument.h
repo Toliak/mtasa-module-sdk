@@ -12,7 +12,7 @@
 templateType to##typeName() const    \
 {                       \
     if (this->type != (check)) {  \
-        throw LuaUnexpectedArgumentType(check); \
+        throw LuaUnexpectedArgumentType(check, this->type); \
     }
 
 
@@ -108,7 +108,7 @@ public:
     void *toPointer() const
     {
         if (!(this->type == LuaArgumentType::LIGHTUSERDATA || this->type == LuaArgumentType::USERDATA)) {
-            throw LuaUnexpectedArgumentType(LuaArgumentType::LIGHTUSERDATA);
+            throw LuaUnexpectedArgumentType(LuaArgumentType::LIGHTUSERDATA, this->type);
         }
 
         return value;
@@ -122,7 +122,7 @@ public:
     LuaObject &extractObject(const std::string &stringClass = "")
     {
         if (!(this->type == LuaArgumentType::USERDATA || this->type == LuaArgumentType::LIGHTUSERDATA)) {
-            throw LuaUnexpectedArgumentType(LuaArgumentType::LIGHTUSERDATA);
+            throw LuaUnexpectedArgumentType(LuaArgumentType::LIGHTUSERDATA, this->type);
         }
 
         this->value = new LuaObject(
