@@ -114,8 +114,8 @@ local TEST_FUNCTIONS = {
                     }}},
     },
     {
-        name = "test_callGetPosition",
-        description = "Call Element.getPosition",
+        name = "test_callGetElementPosition",
+        description = "Call getElementPosition",
         input = {TEST_ELEMENTS[2]},
         expected = {
             TEST_ELEMENTS[2]:getPosition().x,

@@ -165,9 +165,9 @@ class LuaCallException: public LuaException
 public:
     using LuaException::LuaException;
 
-    explicit LuaCallException(int errorId)
+    explicit LuaCallException(int errorId, const std::string& message = "")
     {
-        this->setMessage("Error code: " + std::to_string(errorId));
+        this->setMessage("Error code: " + std::to_string(errorId) + ". Message: " + message);
     }
 };
 

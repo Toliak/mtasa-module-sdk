@@ -143,7 +143,7 @@ std::string stackDump(lua_State *L)
     return result;
 }
 
-int callGetPosition(lua_State *luaVm)
+int callGetElementPosition(lua_State *luaVm)
 {
     LuaVmExtended lua(luaVm);
 
@@ -166,7 +166,32 @@ int callGetPosition(lua_State *luaVm)
 
     lua.pushArguments(callReturn.cbegin(), callReturn.cend());
     return callReturn.size();
+}
 
+int callElementGetPosition(lua_State *luaVm)
+{
+    // TODO: wip
+    LuaVmExtended lua(luaVm);
+
+    LuaArgument element;
+    try {
+        element = lua.parseArgument(1, LuaArgumentType::USERDATA);
+        element.extractObject();
+    } catch (const LuaException &) {
+        lua.pushArgument(LuaArgument(false));
+        return 1;
+    }
+
+    std::vector<LuaArgument> callReturn;
+    try {
+        callReturn = lua.call("Element.getPosition", {element}, 1);
+    } catch (const LuaException &e) {
+        lua.pushArgument(LuaArgument(std::string(e.what())));
+        return 1;
+    }
+
+    lua.pushArguments(callReturn.cbegin(), callReturn.cend());
+    return callReturn.size();
 }
 
 }

@@ -49,7 +49,8 @@ EXTERN_C void RegisterFunctions(lua_State *luaVM)
     pModuleManager->RegisterFunction(luaVM, "test_echoElement", TestFunction::echoElement);
     pModuleManager->RegisterFunction(luaVM, "test_strictTypes", TestFunction::strictTypes);
     pModuleManager->RegisterFunction(luaVM, "test_simpleTable", TestFunction::simpleTable);
-    pModuleManager->RegisterFunction(luaVM, "test_callGetPosition", TestFunction::callGetPosition);
+    pModuleManager->RegisterFunction(luaVM, "test_callGetElementPosition", TestFunction::callGetElementPosition);
+    pModuleManager->RegisterFunction(luaVM, "test_callElementGetPosition", TestFunction::callElementGetPosition);
 }
 
 EXTERN_C bool DoPulse()

@@ -105,7 +105,14 @@ private:
         int state = lua_pcall(luaVm, functionArgs.size(), returnSize, 0);
 
         if (state == LUA_ERRRUN || state == LUA_ERRMEM) {
-            throw LuaCallException(state);
+            std::string message;
+            try {
+                message = getCallReturn(std::list<LuaArgumentType>{LuaArgumentType::STRING}).front().toString();
+            } catch (const LuaException &e) {
+                message = "Cannot get error message: ";
+                message += e.what();
+            }
+            throw LuaCallException(state, message);
         }
     }
 
