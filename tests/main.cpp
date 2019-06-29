@@ -1,8 +1,7 @@
 #include <cstring>
-#include <unordered_map>
 
-#include "lua/LuaImports.h"
 #include "lua/ILuaModuleManager.h"
+#include "lua/LuaImports.h"
 #include "functions.h"
 
 #define MODULE_NAME "ModuleSdkTest"
@@ -61,7 +60,7 @@ EXTERN_C bool DoPulse()
 }
 
 
-EXTERN_C void ResourceStopped(lua_State *luaVM)
+EXTERN_C void ResourceStopped(lua_State *)
 {
 
 }

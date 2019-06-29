@@ -30,7 +30,7 @@ function runTest(name, input, excepted, description)
     iprint('===============[ TEST ]===============')
     iprint(description .. " (" .. name .. ")")
 
-    local result = {Tests[name](unpack(input))}
+    local result = { Tests[name](unpack(input)) }
     local status = checkTable(result, excepted)
     TestsInfo.success = TestsInfo.success + (status and 1 or 0)
     if status then

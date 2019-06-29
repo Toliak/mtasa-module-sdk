@@ -102,7 +102,12 @@ private:
         lua_gettable(luaVm, LUA_GLOBALSINDEX);
         this->pushArguments(functionArgs.cbegin(), functionArgs.cend());
 
-        int state = lua_pcall(luaVm, functionArgs.size(), returnSize, 0);
+        int state = lua_pcall(
+            luaVm,
+            static_cast<int>(functionArgs.size()),
+            returnSize,
+            0
+        );
 
         if (state == LUA_ERRRUN || state == LUA_ERRMEM) {
             std::string message;
@@ -122,7 +127,7 @@ private:
             return {};
         }
 
-        std::vector<LuaArgument> result(amount);
+        std::vector<LuaArgument> result(static_cast<size_t>(amount));
         for (int i = 0; i < amount; i++) {
             int luaIndex = -amount + i;
             result[i] = parseArgument(luaIndex);
@@ -133,7 +138,7 @@ private:
     std::vector<LuaArgument> getCallReturn(const std::list<LuaArgumentType> &types) const
     {
         std::vector<LuaArgument> result(types.size());
-        int index = -types.size();
+        auto index = -static_cast<int>(types.size());
         auto listIterator = types.cbegin();
         auto resultIterator = result.begin();
         for (; lua_type(luaVm, index) != LUA_TNONE && listIterator != types.cend(); index++, listIterator++) {

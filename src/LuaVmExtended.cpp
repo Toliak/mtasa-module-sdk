@@ -110,7 +110,7 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
     } else if (type == LuaArgumentType::STRING) {
         return LuaArgument(std::string(lua_tostring(luaVm, index)));
     } else if (type == LuaArgumentType::USERDATA) {
-        return LuaArgument(static_cast<void *>(lua_touserdata(luaVm, index)));
+        return LuaArgument(lua_touserdata(luaVm, index));
     } else if (type == LuaArgumentType::INTEGER) {
         return LuaArgument(static_cast<int>(lua_tointeger(luaVm, index)));
     }
