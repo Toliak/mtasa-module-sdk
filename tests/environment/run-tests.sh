@@ -23,7 +23,7 @@ fi
 mkdir -p ${SERVER_FOLDER}/mods/deathmatch/logs
 rm -fv ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
 touch ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
-${SERVER_FOLDER}/mta-server64 &
+${SERVER_FOLDER}/mta-server64 >> /dev/null &
 
 sleep 0.5s
 status=$(cat ${SERVER_FOLDER}/mods/deathmatch/logs/server.log | grep "\[TEST TOTAL\]")

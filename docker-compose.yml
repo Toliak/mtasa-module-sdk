@@ -10,10 +10,10 @@ services:
     volumes:
       - ./cmake-build-modules:/home/builder/bin
   environment:
-    build: ./tests/environment/
+    build: ./tests/environment
     user: ${USER_ID}:${GROUP_ID}
     volumes:
-      - ./tests/environment/deathmatch/:/home/mtasa/mods/deathmatch
+      - ./tests/environment/deathmatch:/home/mtasa/mods/deathmatch
       - ./cmake-build-modules:/home/mtasa/x64/modules
 
 volumes:
