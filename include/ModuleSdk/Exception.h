@@ -182,6 +182,19 @@ public:
     ~LuaUnexpectedArgumentType() override = default;
 };
 
+class LuaCannotTransformArgumentToList: public LuaArgumentException
+{
+public:
+    using LuaArgumentException::LuaArgumentException;
+
+    const char *what() const noexcept override
+    {
+        return "Cannot transform to list";
+    }
+
+    ~LuaCannotTransformArgumentToList() override = default;
+};
+
 class LuaCallException: public LuaException
 {
 public:

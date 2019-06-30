@@ -21,6 +21,7 @@ set(
         ${PROJECT_NAME}_SCR_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/src/LuaVmExtended.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/LuaArgument.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/LuaObject.cpp
 )
 
 add_library(

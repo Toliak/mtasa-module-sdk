@@ -205,6 +205,25 @@ local TEST_FUNCTIONS = {
                          },
                      } },
     },
+    {
+        name = "test_tableToList",
+        description = "Successful table (parsed as map in C++) to list",
+        input = { { 0, 1, 2, 3, 4, 5 } },
+        expected = { 0, 1, 2, 3, 4, 5 },
+    },
+    {
+        name = "test_listToMap",
+        description = "list to map",
+        input = { },
+        expected = { {
+                         [1] = 53,
+                         [2] = 42,
+                         [3] = 24,
+                         [4] = 74,
+                         [5] = 81,
+                         ["key"] = 876,
+                     } },
+    },
 }
 
 addEventHandler("onResourceStart", resourceRoot, function()

@@ -133,12 +133,42 @@ public:
         return *reinterpret_cast<LuaObject *>(value);
     }
 
-    LUA_VM_ARGUMENT_GET_FUNCTION(TableListType, LuaArgumentType::TABLE_LIST, List)
-        return *reinterpret_cast<TableListType *>(value);
+    TableMapType toMap() const
+    {
+        if (this->type == LuaArgumentType::TABLE_MAP) {
+            return *reinterpret_cast<TableMapType *>(value);
+        }
+        if (this->type != LuaArgumentType::TABLE_LIST) {
+            throw LuaUnexpectedArgumentType(LuaArgumentType::TABLE_LIST, this->type);
+        }
+
+        const auto &original = *reinterpret_cast<TableListType *>(value);
+        TableMapType result;
+        for (int i = 0; i < original.size(); i++) {
+            result[LuaArgument(i + 1.)] = original[i];
+        }
+        return result;
     }
 
-    LUA_VM_ARGUMENT_GET_FUNCTION(TableMapType, LuaArgumentType::TABLE_MAP, Map)
-        return *reinterpret_cast<TableMapType *>(value);
+    TableListType toList() const
+    {
+        if (this->type == LuaArgumentType::TABLE_LIST) {
+            return *reinterpret_cast<TableListType *>(value);
+        }
+        if (this->type != LuaArgumentType::TABLE_MAP) {
+            throw LuaUnexpectedArgumentType(LuaArgumentType::TABLE_MAP, this->type);
+        }
+
+        const auto &original = *reinterpret_cast<TableMapType *>(value);
+        TableListType result(original.size());
+        for (int i = 0; i < original.size(); i++) {
+            try {
+                result[i] = original.at(LuaArgument(i + 1.));
+            } catch (const std::out_of_range &) {
+                throw LuaCannotTransformArgumentToList();
+            }
+        }
+        return result;
     }
 
     /**

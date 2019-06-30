@@ -11,6 +11,9 @@ struct ObjectId
     unsigned long id;
 };
 
+bool operator==(const ObjectId &left, const ObjectId &right);
+
+
 class LuaObject
 {
 public:
@@ -44,3 +47,5 @@ private:
 
     std::string stringClass;
 };
+
+bool operator==(const LuaObject &left, const LuaObject &right);

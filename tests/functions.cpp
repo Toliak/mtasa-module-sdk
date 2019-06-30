@@ -229,9 +229,42 @@ int advancedTable(lua_State *luaVm)
 
     lua.pushArguments(arguments.cbegin(), arguments.cend());
 
-    /* Returning one table which is already on top of Lua stack. */
-
     return arguments.size();
+}
+
+int tableToList(lua_State *luaVm)
+{
+    LuaVmExtended lua(luaVm);
+
+    LuaArgument table = lua.parseArgument(1);
+    if (table.getType() != LuaArgumentType::TABLE_MAP) {
+        lua.pushArgument(LuaArgument(false));
+        return 1;
+    }
+
+    LuaArgument::TableListType list = table.toList();
+
+    lua.pushArguments(list.cbegin(), list.cend());
+    return list.size();
+}
+
+int listToMap(lua_State *luaVm)
+{
+    LuaVmExtended lua(luaVm);
+
+    LuaArgument::TableListType list{
+        LuaArgument(53),
+        LuaArgument(42),
+        LuaArgument(24),
+        LuaArgument(74),
+        LuaArgument(81),
+    };
+
+    LuaArgument::TableMapType map = LuaArgument(list).toMap();
+    map[LuaArgument(std::string("key"))] = LuaArgument(876);
+
+    lua.pushArgument(LuaArgument(map));
+    return 1;
 }
 
 }

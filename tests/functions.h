@@ -17,4 +17,6 @@ namespace TestFunction
     int call(lua_State *);
     int pushFunction(lua_State *);
     int advancedTable(lua_State *);
+    int tableToList(lua_State *);
+    int listToMap(lua_State *);
 }

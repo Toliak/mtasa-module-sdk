@@ -3,11 +3,27 @@
 
 size_t LuaArgumentHash::operator()(const LuaArgument &k) const
 {
-    return (
-        std::hash<LuaArgumentType>()(k.type) ^ reinterpret_cast<uintptr_t>(k.value)
-    );
-}
+    size_t hashType = std::hash<LuaArgumentType>()(k.type);
 
+    if (k.type == LuaArgumentType::LIGHTUSERDATA || k.type == LuaArgumentType::USERDATA) {
+        return hashType ^ reinterpret_cast<uintptr_t>(k.value);
+    }
+    if (k.type == LuaArgumentType::BOOLEAN) {
+        return hashType ^ *reinterpret_cast<bool *>(k.value);
+    }
+    if (k.type == LuaArgumentType::NUMBER) {
+        return hashType ^ static_cast<size_t>(*reinterpret_cast<double *>(k.value));
+    }
+    if (k.type == LuaArgumentType::INTEGER) {
+        return hashType ^ static_cast<size_t>(*reinterpret_cast<int *>(k.value));
+    }
+    if (k.type == LuaArgumentType::STRING) {
+        return hashType ^ std::hash<std::string>()(*reinterpret_cast<std::string *>(k.value));
+    }
+    // TODO: hash for tables
+    return hashType ^ reinterpret_cast<uintptr_t>(k.value);
+
+}
 
 void LuaArgument::copy(const LuaArgument &argument)
 {
@@ -66,6 +82,27 @@ void LuaArgument::destroy() noexcept
 
 bool operator==(const LuaArgument &left, const LuaArgument &right)
 {
-    return left.type == right.type
-        && left.value == right.value;
+    if (left.type != right.type) {
+        return false;
+    }
+
+    if (left.type == LuaArgumentType::BOOLEAN) {
+        return *reinterpret_cast<bool *>(left.value) == *reinterpret_cast<bool *>(right.value);
+    } else if (left.type == LuaArgumentType::NUMBER) {
+        return *reinterpret_cast<double *>(left.value) == *reinterpret_cast<double *>(right.value);
+    } else if (left.type == LuaArgumentType::INTEGER) {
+        return *reinterpret_cast<int *>(left.value) == *reinterpret_cast<int *>(right.value);
+    } else if (left.type == LuaArgumentType::STRING) {
+        return *reinterpret_cast<std::string *>(left.value) == *reinterpret_cast<std::string *>(right.value);
+    } else if (left.type == LuaArgumentType::OBJECT) {
+        return *reinterpret_cast<LuaObject *>(left.value) == *reinterpret_cast<LuaObject *>(right.value);
+    } else if (left.type == LuaArgumentType::TABLE_LIST) {
+        return *reinterpret_cast<LuaArgument::TableListType *>(left.value)
+            == *reinterpret_cast<LuaArgument::TableListType *>(right.value);
+    } else if (left.type == LuaArgumentType::TABLE_MAP) {
+        return *reinterpret_cast<LuaArgument::TableMapType *>(left.value)
+            == *reinterpret_cast<LuaArgument::TableMapType *>(right.value);
+    } else {
+        return left.value == right.value;
+    }
 }
