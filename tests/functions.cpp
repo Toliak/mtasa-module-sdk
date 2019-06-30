@@ -205,5 +205,31 @@ int pushFunction(lua_State *luaVm)
     return 1;
 }
 
+int advancedTable(lua_State *luaVm)
+{
+    lua_createtable(luaVm, 0, 2); /* creates and pushes new table on top of Lua stack */
+
+    lua_pushstring(luaVm, "name"); /* Pushes table value on top of Lua stack */
+    lua_setfield(luaVm, -2, "name");  /* table["name"] = row->name. Pops key value */
+
+
+    lua_createtable(luaVm, 1, 0);
+    lua_pushstring(luaVm, "into1");
+    lua_rawseti(luaVm, -2, 1);
+    lua_pushstring(luaVm, "into2");
+    lua_rawseti(luaVm, -2, 2);
+    lua_pushstring(luaVm, "into3");
+    lua_rawseti(luaVm, -2, 3);
+
+    lua_setfield(luaVm, -2, "data");
+
+    lua_pushstring(luaVm, "surname");
+    lua_setfield(luaVm, -2, "surname");
+
+    /* Returning one table which is already on top of Lua stack. */
+
+    return 1;
+}
+
 }
 

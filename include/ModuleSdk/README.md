@@ -7,6 +7,7 @@
 - [x] Userdata
 - [x] Lightuserdata
 - [x] Nil
+- [ ] Table (only from C++ to Lua)
 
 ## How to add type from Lua
 

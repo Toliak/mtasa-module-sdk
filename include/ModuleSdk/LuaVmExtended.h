@@ -46,7 +46,12 @@ public:
      * @param end End iterator
      * @return Size of pushed list
      */
-    template<typename IT>
+    template<
+        typename IT,
+        typename = std::enable_if<
+            std::is_same<LuaArgument, typename std::iterator_traits<IT>::value_type>::value
+        >
+    >
     int pushArguments(IT begin, IT end) const
     {
         int size = 0;

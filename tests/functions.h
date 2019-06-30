@@ -16,4 +16,5 @@ namespace TestFunction
     int callGetElementPosition(lua_State *);
     int call(lua_State *);
     int pushFunction(lua_State *);
+    int advancedTable(lua_State *);
 }

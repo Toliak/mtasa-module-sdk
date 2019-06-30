@@ -155,6 +155,12 @@ local TEST_FUNCTIONS = {
         input = { returnFive },
         expected = { returnFive() },
     },
+    {
+        name = "test_advancedTable",
+        description = "Create advanced table",
+        input = {  },
+        expected = { "returnFive()" },
+    },
 }
 
 addEventHandler("onResourceStart", resourceRoot, function()
