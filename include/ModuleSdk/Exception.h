@@ -16,6 +16,8 @@ static const std::unordered_map<LuaArgumentType, std::string> STRING_TYPE = {
     {LuaArgumentType::USERDATA, "Userdata"},
     {LuaArgumentType::INTEGER, "Integer"},
     {LuaArgumentType::OBJECT, "Object"},
+    {LuaArgumentType::TABLE_LIST, "Table list"},
+    {LuaArgumentType::TABLE_MAP, "Table map"},
 };
 
 class LuaException: public std::exception
@@ -89,9 +91,14 @@ public:
 class LuaBadType: public LuaException
 {
 public:
-    const char *what() const noexcept override
+    explicit LuaBadType()
     {
-        return "Bad argument type";
+        this->setMessage("Bad argument type");
+    }
+
+    explicit LuaBadType(int typeCode)
+    {
+        this->setMessage("Bad argument type. Type code: " + std::to_string(typeCode));
     }
 
     ~LuaBadType() override = default;

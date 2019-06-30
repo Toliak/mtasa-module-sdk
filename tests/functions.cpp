@@ -5,6 +5,37 @@
 namespace TestFunction
 {
 
+std::string stackDump(lua_State *L)
+{
+    std::string result;
+    int i;
+    int top = lua_gettop(L);
+    for (i = 1; i <= top; i++) {  /* repeat for each level */
+        int t = lua_type(L, i);
+        switch (t) {
+
+            case LUA_TSTRING:  /* strings */
+                result += lua_tostring(L, i);
+                break;
+
+            case LUA_TBOOLEAN:  /* booleans */
+                result += (lua_toboolean(L, i) ? "true" : "false");
+                break;
+
+            case LUA_TNUMBER:  /* numbers */
+                result += std::to_string(lua_tonumber(L, i));
+                break;
+
+            default:  /* other values */
+                result += lua_typename(L, t);
+                break;
+
+        }
+        result += "  ";  /* put a separator */
+    }
+    return result;
+}
+
 int simple(lua_State *luaVm)
 {
     LuaVmExtended lua(luaVm);
@@ -30,6 +61,10 @@ int echo(lua_State *luaVm)
 {
     LuaVmExtended lua(luaVm);
     auto vector = lua.getArguments();
+
+//    lua.pushArgument(LuaArgument(stackDump(luaVm)));
+//    return 1;
+
     lua.pushArguments(vector.cbegin(), vector.cend());
     return vector.size();
 }
@@ -112,37 +147,6 @@ int simpleTable(lua_State *luaVm)
     return 1;
 }
 
-std::string stackDump(lua_State *L)
-{
-    std::string result;
-    int i;
-    int top = lua_gettop(L);
-    for (i = 1; i <= top; i++) {  /* repeat for each level */
-        int t = lua_type(L, i);
-        switch (t) {
-
-            case LUA_TSTRING:  /* strings */
-                result += lua_tostring(L, i);
-                break;
-
-            case LUA_TBOOLEAN:  /* booleans */
-                result += (lua_toboolean(L, i) ? "true" : "false");
-                break;
-
-            case LUA_TNUMBER:  /* numbers */
-                result += std::to_string(lua_tonumber(L, i));
-                break;
-
-            default:  /* other values */
-                result += lua_typename(L, t);
-                break;
-
-        }
-        result += "  ";  /* put a separator */
-    }
-    return result;
-}
-
 int callGetElementPosition(lua_State *luaVm)
 {
     LuaVmExtended lua(luaVm);
@@ -196,7 +200,6 @@ int pushFunction(lua_State *luaVm)
 
     int ref = luaL_ref(luaVm, LUA_REGISTRYINDEX);
 
-//    lua.pushArgument(function);
     lua_rawgeti(luaVm, LUA_REGISTRYINDEX, ref);
     luaL_unref(luaVm, LUA_REGISTRYINDEX, ref);
 
@@ -207,28 +210,28 @@ int pushFunction(lua_State *luaVm)
 
 int advancedTable(lua_State *luaVm)
 {
-    lua_createtable(luaVm, 0, 2); /* creates and pushes new table on top of Lua stack */
+    LuaVmExtended lua(luaVm);
 
-    lua_pushstring(luaVm, "name"); /* Pushes table value on top of Lua stack */
-    lua_setfield(luaVm, -2, "name");  /* table["name"] = row->name. Pops key value */
+    std::list<LuaArgument> arguments{
+        LuaArgument(std::string("start")),
+        LuaArgument((LuaArgument::TableListType) {
+            LuaArgument(-1),
+            LuaArgument({
+                            {LuaArgument(std::string("keyOne")), LuaArgument(6547)},
+                            {LuaArgument(true), LuaArgument(std::string("value"))},
+                        }),
+            LuaArgument(-3),
+        }),
+        LuaArgument(7854),
+        LuaArgument(std::string("stop")),
+    };
 
 
-    lua_createtable(luaVm, 1, 0);
-    lua_pushstring(luaVm, "into1");
-    lua_rawseti(luaVm, -2, 1);
-    lua_pushstring(luaVm, "into2");
-    lua_rawseti(luaVm, -2, 2);
-    lua_pushstring(luaVm, "into3");
-    lua_rawseti(luaVm, -2, 3);
-
-    lua_setfield(luaVm, -2, "data");
-
-    lua_pushstring(luaVm, "surname");
-    lua_setfield(luaVm, -2, "surname");
+    lua.pushArguments(arguments.cbegin(), arguments.cend());
 
     /* Returning one table which is already on top of Lua stack. */
 
-    return 1;
+    return arguments.size();
 }
 
 }

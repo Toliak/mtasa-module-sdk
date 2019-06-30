@@ -1,5 +1,14 @@
 #include "ModuleSdk/LuaArgument.h"
 
+
+size_t LuaArgumentHash::operator()(const LuaArgument &k) const
+{
+    return (
+        std::hash<LuaArgumentType>()(k.type) ^ reinterpret_cast<uintptr_t>(k.value)
+    );
+}
+
+
 void LuaArgument::copy(const LuaArgument &argument)
 {
     if (!argument.value) {
@@ -23,6 +32,10 @@ void LuaArgument::copy(const LuaArgument &argument)
         this->value = argument.value;
     } else if (type == LuaArgumentType::OBJECT) {
         this->value = new LuaObject(*reinterpret_cast<LuaObject *>(argument.value));
+    } else if (type == LuaArgumentType::TABLE_LIST) {
+        this->value = new TableListType(*reinterpret_cast<TableListType *>(argument.value));
+    } else if (type == LuaArgumentType::TABLE_MAP) {
+        this->value = new TableMapType(*reinterpret_cast<TableMapType *>(argument.value));
     } else {
         this->value = nullptr;
     }
@@ -44,5 +57,15 @@ void LuaArgument::destroy() noexcept
         delete reinterpret_cast<std::string *>(value);
     } else if (type == LuaArgumentType::OBJECT) {
         delete reinterpret_cast<LuaObject *>(value);
+    } else if (type == LuaArgumentType::TABLE_LIST) {
+        delete reinterpret_cast<TableListType *>(value);
+    } else if (type == LuaArgumentType::TABLE_MAP) {
+        delete reinterpret_cast<TableMapType *>(value);
     }
+}
+
+bool operator==(const LuaArgument &left, const LuaArgument &right)
+{
+    return left.type == right.type
+        && left.value == right.value;
 }

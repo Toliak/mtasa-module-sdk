@@ -157,6 +157,29 @@ private:
      */
     void pushObject(const LuaObject &object) const;
 
+    void pushTableList(const LuaArgument &argument) const
+    {
+        const std::vector<LuaArgument> &list = argument.toList();
+
+        lua_createtable(luaVm, list.size(), 0);
+        for (int i = 0; i < list.size(); i++) {
+            this->pushArgument(list[i]);
+            lua_rawseti(luaVm, -2, i + 1);
+        }
+    }
+
+    void pushTableMap(const LuaArgument &argument) const
+    {
+        const auto &map = argument.toMap();
+
+        lua_createtable(luaVm, 0, map.size());
+        for (const auto &pair : map) {
+            this->pushArgument(pair.first);
+            this->pushArgument(pair.second);
+            lua_rawset(luaVm, -3);
+        }
+    }
+
     void captureArguments()
     {
         if (!arguments.empty()) {

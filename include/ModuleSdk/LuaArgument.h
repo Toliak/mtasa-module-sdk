@@ -1,6 +1,8 @@
 #pragma once
 
+#include <vector>
 #include <string>
+#include <unordered_map>
 
 #include "lua/lua.h"
 
@@ -16,9 +18,23 @@ templateType to##typeName() const    \
     }
 
 
-class LuaArgument
+class LuaArgument;
+
+class LuaArgumentHash
 {
 public:
+    size_t operator()(const LuaArgument &k) const;
+};
+
+class LuaArgument
+{
+    friend LuaArgumentHash;
+    friend bool operator==(const LuaArgument &, const LuaArgument &);
+
+public:
+    using TableListType = std::vector<LuaArgument>;
+    using TableMapType = std::unordered_map<LuaArgument, LuaArgument, LuaArgumentHash>;
+
     enum PointerType
     {
         POINTER_USERDATA = LuaArgumentType::USERDATA,
@@ -55,6 +71,15 @@ public:
         : value(new LuaObject(std::move(value))), type(LuaArgumentType::OBJECT)
     {}
 
+    explicit LuaArgument(const TableListType &value)
+        : value(new TableListType(value)), type(LuaArgumentType::TABLE_LIST)
+    {}
+
+    explicit LuaArgument(const TableMapType &value)
+        : value(new TableMapType(value)),
+          type(LuaArgumentType::TABLE_MAP)
+    {}
+
     LuaArgument(const LuaArgument &argument)
         : type(argument.type), value(nullptr)
     {
@@ -87,6 +112,7 @@ public:
         return *this;
     }
 
+    // TODO: return reference
     LUA_VM_ARGUMENT_GET_FUNCTION(bool, LuaArgumentType::BOOLEAN, Bool)
         return *reinterpret_cast<bool *>(value);
     }
@@ -105,6 +131,14 @@ public:
 
     LUA_VM_ARGUMENT_GET_FUNCTION(LuaObject, LuaArgumentType::OBJECT, Object)
         return *reinterpret_cast<LuaObject *>(value);
+    }
+
+    LUA_VM_ARGUMENT_GET_FUNCTION(TableListType, LuaArgumentType::TABLE_LIST, List)
+        return *reinterpret_cast<TableListType *>(value);
+    }
+
+    LUA_VM_ARGUMENT_GET_FUNCTION(TableMapType, LuaArgumentType::TABLE_MAP, Map)
+        return *reinterpret_cast<TableMapType *>(value);
     }
 
     /**
@@ -130,9 +164,15 @@ public:
 
     LuaObject &extractObject(const std::string &stringClass = "")
     {
+        if (this->type == LuaArgumentType::OBJECT) {
+            return *reinterpret_cast<LuaObject *>(this->value);
+        }
+
         if (!(this->type == LuaArgumentType::USERDATA || this->type == LuaArgumentType::LIGHTUSERDATA)) {
             throw LuaUnexpectedArgumentType(LuaArgumentType::LIGHTUSERDATA, this->type);
         }
+
+        // Do not need to clear memory
 
         this->value = new LuaObject(
             ObjectId(*reinterpret_cast<unsigned long *>(this->value)),
@@ -161,3 +201,5 @@ private:
     void *value;
     LuaArgumentType type;
 };
+
+bool operator==(const LuaArgument &left, const LuaArgument &right);

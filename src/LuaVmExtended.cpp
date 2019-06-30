@@ -44,6 +44,10 @@ void LuaVmExtended::pushArgument(const LuaArgument &argument) const
         lua_pushlightuserdata(luaVm, argument.toPointer());
     } else if (argument.getType() == LuaArgumentType::OBJECT) {
         this->pushObject(argument.toObject());
+    } else if (argument.getType() == LuaArgumentType::TABLE_LIST) {
+        this->pushTableList(argument);
+    } else if (argument.getType() == LuaArgumentType::TABLE_MAP) {
+        this->pushTableMap(argument);
     } else {
         throw LuaUnexpectedPushType(argument.getType());
     }
@@ -61,9 +65,11 @@ LuaArgument LuaVmExtended::parseArgument(int index) const
         return parseArgument(index, LuaArgumentType::USERDATA, true);
     } else if (lua_isnil(luaVm, index)) {
         return parseArgument(index, LuaArgumentType::NIL, true);
+    } else if (lua_istable(luaVm, index)) {
+        return parseArgument(index, LuaArgumentType::TABLE_MAP, true);
     }
 
-    throw LuaBadType();
+    throw LuaBadType(lua_type(luaVm, index));
 }
 
 LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool force) const
@@ -88,6 +94,13 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
                 return lua_isnil(vm, index);
             }
         },
+        {
+            LuaArgumentType::TABLE_MAP,
+            [](lua_State *vm, int index) -> int
+            {
+                return lua_istable(vm, index);
+            }
+        },
     };
 
     if (!force) {
@@ -95,7 +108,7 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
         try {
             checker = TYPE_CHECKER.at(type);
         } catch (std::out_of_range &) {
-            throw LuaBadType();
+            throw LuaBadType(lua_type(luaVm, index));
         }
 
         if (!checker(luaVm, index)) {
@@ -110,9 +123,23 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
     } else if (type == LuaArgumentType::STRING) {
         return LuaArgument(std::string(lua_tostring(luaVm, index)));
     } else if (type == LuaArgumentType::USERDATA) {
-        return LuaArgument(lua_touserdata(luaVm, index));
+        LuaArgument result(lua_touserdata(luaVm, index));
+        result.extractObject();
+        return result;
     } else if (type == LuaArgumentType::INTEGER) {
         return LuaArgument(static_cast<int>(lua_tointeger(luaVm, index)));
+    } else if (type == LuaArgumentType::TABLE_MAP) {
+        LuaArgument::TableMapType result;
+
+        lua_pushnil(luaVm);
+        while (lua_next(luaVm, index) != 0) {
+            LuaArgument key = parseArgument( lua_gettop(luaVm) - 2 + 1 );       // Parse -2 (but index from start)
+            LuaArgument value = parseArgument( lua_gettop(luaVm) - 1 + 1 );     // Parse -1 (but index from start)
+            result[key] = value;
+            lua_pop(luaVm, 1);
+        }
+
+        return LuaArgument(result);
     }
 
     return LuaArgument();
