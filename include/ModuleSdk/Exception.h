@@ -18,11 +18,16 @@ static const std::unordered_map<LuaArgumentType, std::string> STRING_TYPE = {
     {LuaArgumentType::OBJECT, "Object"},
     {LuaArgumentType::TABLE_LIST, "Table list"},
     {LuaArgumentType::TABLE_MAP, "Table map"},
-};
+};      ///< Readable type names
 
+/**
+ * @brief Base Lua exception
+ */
+// TODO: split to cpp
 class LuaException: public std::exception
 {
     char *message = nullptr;
+    // TODO: make default message field
 
 protected:
     virtual void copy(const LuaException &luaException) noexcept
@@ -40,6 +45,8 @@ protected:
     {
         delete[] message;
     }
+
+    // TODO: make move method
 
 public:
     LuaException() = default;
@@ -88,6 +95,9 @@ public:
     }
 };
 
+/**
+ * @brief Unsupported type have been captured
+ */
 class LuaBadType: public LuaException
 {
 public:
@@ -104,6 +114,9 @@ public:
     ~LuaBadType() override = default;
 };
 
+/**
+ * @brief Expected another type (on parse)
+ */
 class LuaUnexpectedType: public LuaException
 {
 public:
@@ -144,6 +157,9 @@ public:
     ~LuaUnexpectedType() override = default;
 };
 
+/**
+ * @brief Expected another type (on push)
+ */
 class LuaUnexpectedPushType: public LuaException
 {
 public:
@@ -159,6 +175,23 @@ public:
     ~LuaUnexpectedPushType() override = default;
 };
 
+/**
+ * @brief Function call failed
+ */
+class LuaCallException: public LuaException
+{
+public:
+    using LuaException::LuaException;
+
+    explicit LuaCallException(int errorId, const std::string &message = "")
+    {
+        this->setMessage("Error code: " + std::to_string(errorId) + ". Message: " + message);
+    }
+};
+
+/**
+ * @brief Base exception for LuaArgument
+ */
 class LuaArgumentException: public LuaException
 {
 public:
@@ -167,6 +200,9 @@ public:
     ~LuaArgumentException() override = default;
 };
 
+/**
+ * @brief Expected another type in LuaArgument method
+ */
 class LuaUnexpectedArgumentType: public LuaArgumentException
 {
 public:
@@ -182,6 +218,9 @@ public:
     ~LuaUnexpectedArgumentType() override = default;
 };
 
+/**
+ * @brief Cannot transform LuaArgument to table list
+ */
 class LuaCannotTransformArgumentToList: public LuaArgumentException
 {
 public:
@@ -193,16 +232,5 @@ public:
     }
 
     ~LuaCannotTransformArgumentToList() override = default;
-};
-
-class LuaCallException: public LuaException
-{
-public:
-    using LuaException::LuaException;
-
-    explicit LuaCallException(int errorId, const std::string &message = "")
-    {
-        this->setMessage("Error code: " + std::to_string(errorId) + ". Message: " + message);
-    }
 };
 

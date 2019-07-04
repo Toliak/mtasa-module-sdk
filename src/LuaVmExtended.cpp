@@ -16,6 +16,7 @@ std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgument
                 index
             );
         }
+        // TODO: extend LuaUnexpectedType and re-throw LuaBadType
     }
 
     if (index - 1 != types.size()) {
