@@ -126,7 +126,6 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
         return LuaArgument(std::string(lua_tostring(luaVm, index)));
     } else if (type == LuaArgumentType::LuaTypeUserdata) {
         LuaArgument result(lua_touserdata(luaVm, index));
-        result.extractObject();                     // TODO: remove autoextract
         return result;
     } else if (type == LuaArgumentType::LuaTypeInteger) {
         return LuaArgument(static_cast<int>(lua_tointeger(luaVm, index)));
