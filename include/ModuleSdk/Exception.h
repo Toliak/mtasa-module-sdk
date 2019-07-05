@@ -8,16 +8,16 @@
 #include "LuaArgumentType.h"
 
 static const std::unordered_map<LuaArgumentType, std::string> STRING_TYPE = {
-    {LuaArgumentType::NIL, "Nil"},
-    {LuaArgumentType::BOOLEAN, "Boolean"},
-    {LuaArgumentType::LIGHTUSERDATA, "Light userdata"},
-    {LuaArgumentType::NUMBER, "Number"},
-    {LuaArgumentType::STRING, "String"},
-    {LuaArgumentType::USERDATA, "Userdata"},
-    {LuaArgumentType::INTEGER, "Integer"},
-    {LuaArgumentType::OBJECT, "Object"},
-    {LuaArgumentType::TABLE_LIST, "Table list"},
-    {LuaArgumentType::TABLE_MAP, "Table map"},
+    {LuaArgumentType::LueTypeNil, "Nil"},
+    {LuaArgumentType::LuaTypeBoolean, "Boolean"},
+    {LuaArgumentType::LuaTypeLightUserdata, "Light userdata"},
+    {LuaArgumentType::LuaTypeNumber, "Number"},
+    {LuaArgumentType::LuaTypeString, "String"},
+    {LuaArgumentType::LuaTypeUserdata, "Userdata"},
+    {LuaArgumentType::LuaTypeInteger, "Integer"},
+    {LuaArgumentType::LuaTypeObject, "Object"},
+    {LuaArgumentType::LuaTypeTableList, "Table list"},
+    {LuaArgumentType::LuaTypeTableMap, "Table map"},
 };      ///< Readable type names
 
 /**

@@ -47,7 +47,7 @@ public:
      * @brief Nil constructor
      */
     explicit LuaArgument()
-        : value(nullptr), type(LuaArgumentType::NIL)
+        : value(nullptr), type(LuaArgumentType::LueTypeNil)
     {}
 
     /**
@@ -55,7 +55,7 @@ public:
      * @param value Initial boolean
      */
     explicit LuaArgument(bool value)
-        : value(new bool(value)), type(LuaArgumentType::BOOLEAN)
+        : value(new bool(value)), type(LuaArgumentType::LuaTypeBoolean)
     {}
 
     /**
@@ -63,7 +63,7 @@ public:
      * @param value Initial double
      */
     explicit LuaArgument(double value)
-        : value(new double(value)), type(LuaArgumentType::NUMBER)
+        : value(new double(value)), type(LuaArgumentType::LuaTypeNumber)
     {}
 
     // TODO: make c-style string constructor
@@ -73,14 +73,14 @@ public:
      * @param value Initial string
      */
     explicit LuaArgument(std::string value)
-        : value(new std::string(std::move(value))), type(LuaArgumentType::STRING)
+        : value(new std::string(std::move(value))), type(LuaArgumentType::LuaTypeString)
     {}
 
     /// Constructor pointer meaning
     enum PointerType
     {
-        POINTER_USERDATA = LuaArgumentType::USERDATA,
-        POINTER_LIGHTUSERDATA = LuaArgumentType::LIGHTUSERDATA,
+        POINTER_USERDATA = LuaArgumentType::LuaTypeUserdata,
+        POINTER_LIGHTUSERDATA = LuaArgumentType::LuaTypeLightUserdata,
     };
 
     /**
@@ -99,7 +99,7 @@ public:
      * @param value Initial int
      */
     explicit LuaArgument(int value)
-        : value(new int(value)), type(LuaArgumentType::INTEGER)
+        : value(new int(value)), type(LuaArgumentType::LuaTypeInteger)
     {}
 
     /**
@@ -107,7 +107,7 @@ public:
      * @param value Initial LuaObject
      */
     explicit LuaArgument(LuaObject value)
-        : value(new LuaObject(std::move(value))), type(LuaArgumentType::OBJECT)
+        : value(new LuaObject(std::move(value))), type(LuaArgumentType::LuaTypeObject)
     {}
 
     /**
@@ -115,7 +115,7 @@ public:
      * @param value Initial vector of LuaArgument
      */
     explicit LuaArgument(const TableListType &value)
-        : value(new TableListType(value)), type(LuaArgumentType::TABLE_LIST)
+        : value(new TableListType(value)), type(LuaArgumentType::LuaTypeTableList)
     {}
 
     /**
@@ -123,7 +123,7 @@ public:
      * @param value Initial map of LuaArgument
      */
     explicit LuaArgument(const TableMapType &value)
-        : value(new TableMapType(value)), type(LuaArgumentType::TABLE_MAP)
+        : value(new TableMapType(value)), type(LuaArgumentType::LuaTypeTableMap)
     {}
 
     /**
@@ -142,7 +142,7 @@ public:
         : value(obj.value), type(obj.type)
     {
         obj.value = nullptr;
-        obj.type = LuaArgumentType::NIL;
+        obj.type = LuaArgumentType::LueTypeNil;
     }
 
     /**
@@ -165,7 +165,7 @@ public:
         // TODO: make clear method
         // Clear
         argument.value = nullptr;
-        argument.type = LuaArgumentType::NIL;
+        argument.type = LuaArgumentType::LueTypeNil;
 
         return *this;
     }
@@ -176,7 +176,7 @@ public:
      * @throws LuaUnexpectedArgumentType Type mismatch
      * @return Result
      */
-    LUA_VM_ARGUMENT_GET_FUNCTION(bool, LuaArgumentType::BOOLEAN, Bool)
+    LUA_VM_ARGUMENT_GET_FUNCTION(bool, LuaArgumentType::LuaTypeBoolean, Bool)
         return *reinterpret_cast<bool *>(value);
     }
 
@@ -185,7 +185,7 @@ public:
      * @throws LuaUnexpectedArgumentType Type mismatch
      * @return Result
      */
-    LUA_VM_ARGUMENT_GET_FUNCTION(double, LuaArgumentType::NUMBER, Number)
+    LUA_VM_ARGUMENT_GET_FUNCTION(double, LuaArgumentType::LuaTypeNumber, Number)
         return *reinterpret_cast<double *>(value);
     }
 
@@ -194,7 +194,7 @@ public:
      * @throws LuaUnexpectedArgumentType Type mismatch
      * @return Result
      */
-    LUA_VM_ARGUMENT_GET_FUNCTION(int, LuaArgumentType::INTEGER, Integer)
+    LUA_VM_ARGUMENT_GET_FUNCTION(int, LuaArgumentType::LuaTypeInteger, Integer)
         return *reinterpret_cast<int *>(value);
     }
 
@@ -203,7 +203,7 @@ public:
      * @throws LuaUnexpectedArgumentType Type mismatch
      * @return Result
      */
-    LUA_VM_ARGUMENT_GET_FUNCTION(std::string, LuaArgumentType::STRING, String)
+    LUA_VM_ARGUMENT_GET_FUNCTION(std::string, LuaArgumentType::LuaTypeString, String)
         return *reinterpret_cast<std::string *>(value);
     }
 
@@ -212,7 +212,7 @@ public:
      * @throws LuaUnexpectedArgumentType Type mismatch
      * @return Result
      */
-    LUA_VM_ARGUMENT_GET_FUNCTION(LuaObject, LuaArgumentType::OBJECT, Object)
+    LUA_VM_ARGUMENT_GET_FUNCTION(LuaObject, LuaArgumentType::LuaTypeObject, Object)
         return *reinterpret_cast<LuaObject *>(value);
     }
 
@@ -223,11 +223,11 @@ public:
      */
     TableMapType toMap() const
     {
-        if (this->type == LuaArgumentType::TABLE_MAP) {
+        if (this->type == LuaArgumentType::LuaTypeTableMap) {
             return *reinterpret_cast<TableMapType *>(value);
         }
-        if (this->type != LuaArgumentType::TABLE_LIST) {
-            throw LuaUnexpectedArgumentType(LuaArgumentType::TABLE_LIST, this->type);
+        if (this->type != LuaArgumentType::LuaTypeTableList) {
+            throw LuaUnexpectedArgumentType(LuaArgumentType::LuaTypeTableList, this->type);
         }
 
         const auto &original = *reinterpret_cast<TableListType *>(value);
@@ -246,11 +246,11 @@ public:
      */
     TableListType toList() const
     {
-        if (this->type == LuaArgumentType::TABLE_LIST) {
+        if (this->type == LuaArgumentType::LuaTypeTableList) {
             return *reinterpret_cast<TableListType *>(value);
         }
-        if (this->type != LuaArgumentType::TABLE_MAP) {
-            throw LuaUnexpectedArgumentType(LuaArgumentType::TABLE_MAP, this->type);
+        if (this->type != LuaArgumentType::LuaTypeTableMap) {
+            throw LuaUnexpectedArgumentType(LuaArgumentType::LuaTypeTableMap, this->type);
         }
 
         const auto &original = *reinterpret_cast<TableMapType *>(value);
@@ -273,10 +273,10 @@ public:
     void *toPointer() const
     {
         if (!(
-            this->type == LuaArgumentType::LIGHTUSERDATA
-                || this->type == LuaArgumentType::USERDATA
+            this->type == LuaArgumentType::LuaTypeLightUserdata
+                || this->type == LuaArgumentType::LuaTypeUserdata
         )) {
-            throw LuaUnexpectedArgumentType(LuaArgumentType::LIGHTUSERDATA, this->type);
+            throw LuaUnexpectedArgumentType(LuaArgumentType::LuaTypeLightUserdata, this->type);
         }
 
         return value;
@@ -288,7 +288,7 @@ public:
      */
     bool isNil() const
     {
-        return this->type == LuaArgumentType::NIL;
+        return this->type == LuaArgumentType::LueTypeNil;
     }
 
     /**
@@ -299,12 +299,12 @@ public:
      */
     LuaObject &extractObject(const std::string &stringClass = "")
     {
-        if (this->type == LuaArgumentType::OBJECT) {
+        if (this->type == LuaArgumentType::LuaTypeObject) {
             return *reinterpret_cast<LuaObject *>(this->value);
         }
 
-        if (!(this->type == LuaArgumentType::USERDATA || this->type == LuaArgumentType::LIGHTUSERDATA)) {
-            throw LuaUnexpectedArgumentType(LuaArgumentType::LIGHTUSERDATA, this->type);
+        if (!(this->type == LuaArgumentType::LuaTypeUserdata || this->type == LuaArgumentType::LuaTypeLightUserdata)) {
+            throw LuaUnexpectedArgumentType(LuaArgumentType::LuaTypeLightUserdata, this->type);
         }
 
         // Do not need to clear memory
@@ -314,7 +314,7 @@ public:
             id,
             stringClass
         );
-        this->type = LuaArgumentType::OBJECT;
+        this->type = LuaArgumentType::LuaTypeObject;
 
         return *reinterpret_cast<LuaObject *>(this->value);
     }

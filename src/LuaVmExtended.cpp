@@ -29,25 +29,25 @@ std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgument
 
 void LuaVmExtended::pushArgument(const LuaArgument &argument) const
 {
-    if (argument.getType() == LuaArgumentType::NIL) {
+    if (argument.getType() == LuaArgumentType::LueTypeNil) {
         lua_pushnil(luaVm);
-    } else if (argument.getType() == LuaArgumentType::NUMBER) {
+    } else if (argument.getType() == LuaArgumentType::LuaTypeNumber) {
         lua_pushnumber(luaVm, argument.toNumber());
-    } else if (argument.getType() == LuaArgumentType::INTEGER) {
+    } else if (argument.getType() == LuaArgumentType::LuaTypeInteger) {
         lua_pushinteger(luaVm, argument.toInteger());
-    } else if (argument.getType() == LuaArgumentType::STRING) {
+    } else if (argument.getType() == LuaArgumentType::LuaTypeString) {
         lua_pushstring(luaVm, argument.toString().c_str());
-    } else if (argument.getType() == LuaArgumentType::BOOLEAN) {
+    } else if (argument.getType() == LuaArgumentType::LuaTypeBoolean) {
         lua_pushboolean(luaVm, argument.toBool());
-    } else if (argument.getType() == LuaArgumentType::LIGHTUSERDATA) {
+    } else if (argument.getType() == LuaArgumentType::LuaTypeLightUserdata) {
         lua_pushlightuserdata(luaVm, argument.toPointer());
-    } else if (argument.getType() == LuaArgumentType::USERDATA) {
+    } else if (argument.getType() == LuaArgumentType::LuaTypeUserdata) {
         lua_pushlightuserdata(luaVm, argument.toPointer());
-    } else if (argument.getType() == LuaArgumentType::OBJECT) {
+    } else if (argument.getType() == LuaArgumentType::LuaTypeObject) {
         this->pushObject(argument.toObject());
-    } else if (argument.getType() == LuaArgumentType::TABLE_LIST) {
+    } else if (argument.getType() == LuaArgumentType::LuaTypeTableList) {
         this->pushTableList(argument);
-    } else if (argument.getType() == LuaArgumentType::TABLE_MAP) {
+    } else if (argument.getType() == LuaArgumentType::LuaTypeTableMap) {
         this->pushTableMap(argument);
     } else {
         throw LuaUnexpectedPushType(argument.getType());
@@ -57,18 +57,18 @@ void LuaVmExtended::pushArgument(const LuaArgument &argument) const
 LuaArgument LuaVmExtended::parseArgument(int index) const
 {
     if (lua_isboolean(luaVm, index)) {
-        return parseArgument(index, LuaArgumentType::BOOLEAN, true);
+        return parseArgument(index, LuaArgumentType::LuaTypeBoolean, true);
     } else if (lua_isnumber(luaVm, index)) {
-        return parseArgument(index, LuaArgumentType::NUMBER, true);
+        return parseArgument(index, LuaArgumentType::LuaTypeNumber, true);
     } else if (lua_isstring(luaVm, index)) {
-        return parseArgument(index, LuaArgumentType::STRING, true);
+        return parseArgument(index, LuaArgumentType::LuaTypeString, true);
     } else if (lua_isuserdata(luaVm, index)) {
-        return parseArgument(index, LuaArgumentType::USERDATA, true);
+        return parseArgument(index, LuaArgumentType::LuaTypeUserdata, true);
     } else if (lua_isnil(luaVm, index)) {
-        return parseArgument(index, LuaArgumentType::NIL, true);
+        return parseArgument(index, LuaArgumentType::LueTypeNil, true);
     } else if (lua_istable(luaVm, index)) {
         // Cannot autodetect list
-        return parseArgument(index, LuaArgumentType::TABLE_MAP, true);
+        return parseArgument(index, LuaArgumentType::LuaTypeTableMap, true);
     }
 
     throw LuaBadType(lua_type(luaVm, index));
@@ -77,27 +77,27 @@ LuaArgument LuaVmExtended::parseArgument(int index) const
 LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool force) const
 {
     static const std::unordered_map<LuaArgumentType, int (*)(lua_State *, int)> TYPE_CHECKER = {
-        {LuaArgumentType::INTEGER, lua_isnumber},
-        {LuaArgumentType::NUMBER, lua_isnumber},
-        {LuaArgumentType::STRING, lua_isstring},
-        {LuaArgumentType::USERDATA, lua_isuserdata},
+        {LuaArgumentType::LuaTypeInteger, lua_isnumber},
+        {LuaArgumentType::LuaTypeNumber, lua_isnumber},
+        {LuaArgumentType::LuaTypeString, lua_isstring},
+        {LuaArgumentType::LuaTypeUserdata, lua_isuserdata},
 
         {
-            LuaArgumentType::BOOLEAN,
+            LuaArgumentType::LuaTypeBoolean,
             [](lua_State *vm, int index) -> int
             {
                 return lua_isboolean(vm, index);
             }
         },
         {
-            LuaArgumentType::NIL,
+            LuaArgumentType::LueTypeNil,
             [](lua_State *vm, int index) -> int
             {
                 return lua_isnil(vm, index);
             }
         },
         {
-            LuaArgumentType::TABLE_MAP,
+            LuaArgumentType::LuaTypeTableMap,
             [](lua_State *vm, int index) -> int
             {
                 return lua_istable(vm, index);
@@ -118,19 +118,19 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
         }
     }
 
-    if (type == LuaArgumentType::BOOLEAN) {
+    if (type == LuaArgumentType::LuaTypeBoolean) {
         return LuaArgument(static_cast<bool>(lua_toboolean(luaVm, index)));
-    } else if (type == LuaArgumentType::NUMBER) {
+    } else if (type == LuaArgumentType::LuaTypeNumber) {
         return LuaArgument(static_cast<double>(lua_tonumber(luaVm, index)));
-    } else if (type == LuaArgumentType::STRING) {
+    } else if (type == LuaArgumentType::LuaTypeString) {
         return LuaArgument(std::string(lua_tostring(luaVm, index)));
-    } else if (type == LuaArgumentType::USERDATA) {
+    } else if (type == LuaArgumentType::LuaTypeUserdata) {
         LuaArgument result(lua_touserdata(luaVm, index));
         result.extractObject();                     // TODO: remove autoextract
         return result;
-    } else if (type == LuaArgumentType::INTEGER) {
+    } else if (type == LuaArgumentType::LuaTypeInteger) {
         return LuaArgument(static_cast<int>(lua_tointeger(luaVm, index)));
-    } else if (type == LuaArgumentType::TABLE_MAP) {
+    } else if (type == LuaArgumentType::LuaTypeTableMap) {
         LuaArgument::TableMapType result;
         lua_pushnil(luaVm);         // Current key is nil
 

@@ -153,7 +153,7 @@ private:
         if (state == LUA_ERRRUN || state == LUA_ERRMEM) {                   // Error handler
             std::string message;
             try {
-                message = getCallReturn(std::list<LuaArgumentType>{LuaArgumentType::STRING}).front().toString();
+                message = getCallReturn(std::list<LuaArgumentType>{LuaArgumentType::LuaTypeString}).front().toString();
             } catch (const LuaException &e) {
                 message = "Cannot get error message: ";
                 message += e.what();

@@ -5,19 +5,17 @@
 /// LuaArgument types description
 enum LuaArgumentType
 {
-    // TODO: Refactor names
-
     // Lua types
-    NIL = LUA_TNIL,
-    BOOLEAN = LUA_TBOOLEAN,
-    LIGHTUSERDATA = LUA_TLIGHTUSERDATA,
-    NUMBER = LUA_TNUMBER,
-    STRING = LUA_TSTRING,
-    USERDATA = LUA_TUSERDATA,
-    TABLE_MAP = LUA_TTABLE,
+    LueTypeNil = LUA_TNIL,
+    LuaTypeBoolean = LUA_TBOOLEAN,
+    LuaTypeLightUserdata = LUA_TLIGHTUSERDATA,
+    LuaTypeNumber = LUA_TNUMBER,
+    LuaTypeString = LUA_TSTRING,
+    LuaTypeUserdata = LUA_TUSERDATA,
+    LuaTypeTableMap = LUA_TTABLE,
 
     // Custom types
-    INTEGER = 1001,
-    OBJECT = 1002,
-    TABLE_LIST = 1003,
+    LuaTypeInteger = 1001,
+    LuaTypeObject = 1002,
+    LuaTypeTableList = 1003,
 };
