@@ -4,9 +4,10 @@ std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgument
 {
     std::vector<LuaArgument> result(types.size());
 
-    int index = 1;
-    auto listIterator = types.cbegin();
+    int index = 1;                          ///< Stack index
+    auto listIterator = types.cbegin();     ///< Type iterator
     for (; lua_type(luaVm, index) != LUA_TNONE && listIterator != types.cend(); index++, listIterator++) {
+        // While we have value on stack and type lists not ended
         try {
             result[index - 1] = parseArgument(index, *listIterator);
         } catch (LuaException &) {
@@ -22,7 +23,6 @@ std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgument
     if (index - 1 != types.size()) {
         throw std::out_of_range("Not enough arguments");                //TODO: LuaOutOfRange
     }
-
 
     return result;
 }
@@ -67,6 +67,7 @@ LuaArgument LuaVmExtended::parseArgument(int index) const
     } else if (lua_isnil(luaVm, index)) {
         return parseArgument(index, LuaArgumentType::NIL, true);
     } else if (lua_istable(luaVm, index)) {
+        // Cannot autodetect list
         return parseArgument(index, LuaArgumentType::TABLE_MAP, true);
     }
 
@@ -102,9 +103,9 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
                 return lua_istable(vm, index);
             }
         },
-    };
+    };      ///< Checker function dictionary
 
-    if (!force) {
+    if (!force) {               // No need to check type, if force
         int (*checker)(lua_State *, int);
         try {
             checker = TYPE_CHECKER.at(type);
@@ -125,17 +126,19 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
         return LuaArgument(std::string(lua_tostring(luaVm, index)));
     } else if (type == LuaArgumentType::USERDATA) {
         LuaArgument result(lua_touserdata(luaVm, index));
-        result.extractObject();
+        result.extractObject();                     // TODO: remove autoextract
         return result;
     } else if (type == LuaArgumentType::INTEGER) {
         return LuaArgument(static_cast<int>(lua_tointeger(luaVm, index)));
     } else if (type == LuaArgumentType::TABLE_MAP) {
         LuaArgument::TableMapType result;
+        lua_pushnil(luaVm);         // Current key is nil
 
-        lua_pushnil(luaVm);
         while (lua_next(luaVm, index) != 0) {
-            LuaArgument key = parseArgument( lua_gettop(luaVm) - 2 + 1 );       // Parse -2 (but index from start)
-            LuaArgument value = parseArgument( lua_gettop(luaVm) - 1 + 1 );     // Parse -1 (but index from start)
+            // Cannot user negative index in case of nested tables
+            LuaArgument key = parseArgument(lua_gettop(luaVm) - 2 + 1);       // Parse -2 (but index from start)
+            LuaArgument value = parseArgument(lua_gettop(luaVm) - 1 + 1);     // Parse -1 (but index from start)
+
             result[key] = value;
             lua_pop(luaVm, 1);
         }
@@ -149,6 +152,8 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
 void LuaVmExtended::pushObject(const LuaObject &object) const
 {
     auto *pointer = reinterpret_cast<void *>(object.getObjectId().id);
+
+    // Code from official MTASA repository
 
     lua_pushstring(luaVm, "ud");
     lua_rawget(luaVm, LUA_REGISTRYINDEX);

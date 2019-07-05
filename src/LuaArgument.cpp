@@ -1,33 +1,33 @@
 #include "ModuleSdk/LuaArgument.h"
 
 
-size_t LuaArgumentHash::operator()(const LuaArgument &k) const
+size_t LuaArgumentHash::operator()(const LuaArgument &argument) const
 {
-    size_t hashType = std::hash<LuaArgumentType>()(k.type);
+    size_t hashType = std::hash<LuaArgumentType>()(argument.type);         ///< Hashed type
 
-    if (k.type == LuaArgumentType::LIGHTUSERDATA || k.type == LuaArgumentType::USERDATA) {
-        return hashType ^ reinterpret_cast<uintptr_t>(k.value);
+    if (argument.type == LuaArgumentType::LIGHTUSERDATA || argument.type == LuaArgumentType::USERDATA) {
+        return hashType ^ reinterpret_cast<uintptr_t>(argument.value);
     }
-    if (k.type == LuaArgumentType::BOOLEAN) {
-        return hashType ^ *reinterpret_cast<bool *>(k.value);
+    if (argument.type == LuaArgumentType::BOOLEAN) {
+        return hashType ^ *reinterpret_cast<bool *>(argument.value);
     }
-    if (k.type == LuaArgumentType::NUMBER) {
-        return hashType ^ static_cast<size_t>(*reinterpret_cast<double *>(k.value));
+    if (argument.type == LuaArgumentType::NUMBER) {
+        return hashType ^ static_cast<size_t>(*reinterpret_cast<double *>(argument.value));
     }
-    if (k.type == LuaArgumentType::INTEGER) {
-        return hashType ^ static_cast<size_t>(*reinterpret_cast<int *>(k.value));
+    if (argument.type == LuaArgumentType::INTEGER) {
+        return hashType ^ static_cast<size_t>(*reinterpret_cast<int *>(argument.value));
     }
-    if (k.type == LuaArgumentType::STRING) {
-        return hashType ^ std::hash<std::string>()(*reinterpret_cast<std::string *>(k.value));
+    if (argument.type == LuaArgumentType::STRING) {
+        return hashType ^ std::hash<std::string>()(*reinterpret_cast<std::string *>(argument.value));
     }
     // TODO: hash for tables
-    return hashType ^ reinterpret_cast<uintptr_t>(k.value);
+    return hashType ^ reinterpret_cast<uintptr_t>(argument.value);
 
 }
 
 void LuaArgument::copy(const LuaArgument &argument)
 {
-    if (!argument.value) {
+    if (!argument.value) {                          // Nil
         this->type = LuaArgumentType::NIL;
         this->value = nullptr;
         return;

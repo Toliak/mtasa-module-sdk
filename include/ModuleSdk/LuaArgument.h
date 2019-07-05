@@ -26,7 +26,7 @@ class LuaArgument;
 class LuaArgumentHash
 {
 public:
-    size_t operator()(const LuaArgument &k) const;
+    size_t operator()(const LuaArgument &argument) const;
 };
 
 // TODO: split to cpp

@@ -140,7 +140,7 @@ private:
     void callFunction(const std::string &function, const std::list<LuaArgument> &functionArgs, int returnSize) const
     {
         lua_pushstring(luaVm, function.c_str());
-        lua_gettable(luaVm, LUA_GLOBALSINDEX);
+        lua_gettable(luaVm, LUA_GLOBALSINDEX);              // To get global function
         this->pushArguments(functionArgs.cbegin(), functionArgs.cend());
 
         int state = lua_pcall(
@@ -150,7 +150,7 @@ private:
             0
         );
 
-        if (state == LUA_ERRRUN || state == LUA_ERRMEM) {
+        if (state == LUA_ERRRUN || state == LUA_ERRMEM) {                   // Error handler
             std::string message;
             try {
                 message = getCallReturn(std::list<LuaArgumentType>{LuaArgumentType::STRING}).front().toString();
@@ -195,17 +195,20 @@ private:
     std::vector<LuaArgument> getCallReturn(const std::list<LuaArgumentType> &types) const
     {
         std::vector<LuaArgument> result(types.size());
-        auto index = -static_cast<int>(types.size());
-        auto listIterator = types.cbegin();
-        auto resultIterator = result.begin();
+
+        auto index = -static_cast<int>(types.size());           ///< Stack index (starts from minimal negative)
+        auto listIterator = types.cbegin();                     ///< Type iterator
+        auto resultIterator = result.begin();                   ///< Where to place result value
         for (; lua_type(luaVm, index) != LUA_TNONE && listIterator != types.cend(); index++, listIterator++) {
+            // While we have value on stack and type lists not ended
             *(resultIterator++) = parseArgument(index, *listIterator);
         }
+
         return result;
     }
 
     /**
-     * @brief Push MTASA object
+     * @brief Push MTASA object to stack
      * @author https://github.com/multitheftauto/mtasa-blue/blob/master/Server/mods/deathmatch/logic/lua/LuaCommon.cpp
      */
     void pushObject(const LuaObject &object) const;
@@ -220,6 +223,7 @@ private:
         lua_createtable(luaVm, list.size(), 0);
         for (int i = 0; i < list.size(); i++) {
             this->pushArgument(list[i]);
+
             lua_rawseti(luaVm, -2, i + 1);
         }
     }
@@ -233,9 +237,10 @@ private:
 
         lua_createtable(luaVm, 0, map.size());
         for (const auto &pair : map) {
-            this->pushArgument(pair.first);
-            this->pushArgument(pair.second);
-            lua_rawset(luaVm, -3);
+            this->pushArgument(pair.first);             // Set key
+            this->pushArgument(pair.second);            // Set value
+
+            lua_rawset(luaVm, -3);                      // Set table row
         }
     }
 
@@ -254,6 +259,8 @@ private:
     }
 
     lua_State *luaVm;                               ///< Original VM
+
     bool isArgumentsCaptured = false;               ///< Arguments capture flag
+    // TODO: remove arguments caching (in case of changing stack)
     std::vector<LuaArgument> arguments;             ///< Captured arguments
 };
