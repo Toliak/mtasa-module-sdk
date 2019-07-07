@@ -73,7 +73,7 @@ int isNumber(lua_State *luaVm)
 {
     LuaVmExtended lua(luaVm);
     try {
-        lua.parseArgument(1, LuaArgumentType::NUMBER);
+        lua.parseArgument(1, LuaTypeNumber);
     } catch (const LuaUnexpectedType &) {
         lua.pushArgument(LuaArgument(false));
         return 1;
@@ -86,7 +86,7 @@ int isString(lua_State *luaVm)
 {
     LuaVmExtended lua(luaVm);
     try {
-        lua.parseArgument(1, LuaArgumentType::STRING);
+        lua.parseArgument(1, LuaTypeString);
     } catch (const LuaUnexpectedType &) {
         lua.pushArgument(LuaArgument(false));
         return 1;
@@ -120,7 +120,7 @@ int strictTypes(lua_State *luaVm)
 {
     LuaVmExtended lua(luaVm);
     try {
-        lua.getArguments({LuaArgumentType::BOOLEAN, LuaArgumentType::STRING, LuaArgumentType::INTEGER});
+        lua.getArguments({LuaTypeBoolean, LuaTypeString, LuaTypeInteger});
     } catch (const LuaUnexpectedType &e) {
         lua.pushArgument(LuaArgument(false));
         return 1;
@@ -182,7 +182,7 @@ int callGetElementPosition(lua_State *luaVm)
 int call(lua_State *luaVm)
 {
     LuaVmExtended lua(luaVm);
-    LuaArgument element = lua.parseArgument(1, LuaArgumentType::USERDATA);
+    LuaArgument element = lua.parseArgument(1, LuaTypeUserdata);
     element.extractObject();
 
     lua_getglobal(luaVm, "Element");
@@ -190,7 +190,7 @@ int call(lua_State *luaVm)
     lua.pushArgument(element);
 
     lua_pcall(luaVm, 1, 1, 0);
-    lua.pushArgument(lua.parseArgument(-1, LuaArgumentType::INTEGER));
+    lua.pushArgument(lua.parseArgument(-1, LuaTypeInteger));
     return 1;
 }
 
@@ -204,7 +204,7 @@ int pushFunction(lua_State *luaVm)
     luaL_unref(luaVm, LUA_REGISTRYINDEX, ref);
 
     lua_pcall(luaVm, 0, 1, 0);
-    lua.pushArgument(lua.parseArgument(-1, LuaArgumentType::INTEGER));
+    lua.pushArgument(lua.parseArgument(-1, LuaTypeInteger));
     return 1;
 }
 
@@ -237,7 +237,7 @@ int tableToList(lua_State *luaVm)
     LuaVmExtended lua(luaVm);
 
     LuaArgument table = lua.parseArgument(1);
-    if (table.getType() != LuaArgumentType::TABLE_MAP) {
+    if (table.getType() != LuaTypeTableMap) {
         lua.pushArgument(LuaArgument(false));
         return 1;
     }
