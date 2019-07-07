@@ -1,0 +1,6 @@
+*build*
+*install*
+.vs
+.idea
+compose-log.txt
+!*.sh
