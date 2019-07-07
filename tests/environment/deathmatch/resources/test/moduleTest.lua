@@ -177,12 +177,12 @@ local TEST_FUNCTIONS = {
         name = "test_echo",
         description = "Successful echo simple table",
         input = { {
-                      TEST_ELEMENTS[2],
+                      "TEST_ELEMENTS[2]",
                       "value",
                       6745,
                   } },
         expected = { {
-                         TEST_ELEMENTS[2],
+                         "TEST_ELEMENTS[2]",
                          "value",
                          6745,
                      } },
@@ -191,14 +191,14 @@ local TEST_FUNCTIONS = {
         name = "test_echo",
         description = "Successful echo nested tables",
         input = { {
-                      TEST_ELEMENTS[2],
+                      "TEST_ELEMENTS[2]",
                       {
                           [true] = "value",
                           keyOne = 6547,
                       },
                   } },
         expected = { {
-                         TEST_ELEMENTS[2],
+                         "TEST_ELEMENTS[2]",
                          {
                              [true] = "value",
                              keyOne = 6547,
