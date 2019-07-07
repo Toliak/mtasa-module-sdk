@@ -32,7 +32,20 @@ add_library(
 )
 include_directories(${${PROJECT_NAME}_INCLUDE_DIR})
 set(MTA_LUA MtaLua)
-target_link_libraries(${PROJECT_NAME} ${MTA_LUA})
+
+set(
+        ${PROJECT_NAME}_LINK
+        ${MTA_LUA}
+)
+if (WIN32)
+    set(
+            ${PROJECT_NAME}_LINK
+            ${${PROJECT_NAME}_LINK}
+            ${CMAKE_CURRENT_SOURCE_DIR}/lib/lua5.1.lib
+    )
+endif ()
+target_link_libraries(${PROJECT_NAME} ${${PROJECT_NAME}_LINK})
+
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_include_directories(${PROJECT_NAME} SYSTEM INTERFACE
