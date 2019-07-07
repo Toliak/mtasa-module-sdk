@@ -167,13 +167,12 @@ public:
         return *this;
     }
 
-    // TODO: return reference
     /**
      * @brief Boolean getter
      * @throws LuaUnexpectedArgumentType Type mismatch
      * @return Result
      */
-    LUA_VM_ARGUMENT_GET_FUNCTION(bool, LuaArgumentType::LuaTypeBoolean, Bool)
+    LUA_VM_ARGUMENT_GET_FUNCTION(bool &, LuaArgumentType::LuaTypeBoolean, Bool)
         return *reinterpret_cast<bool *>(value);
     }
 
@@ -182,7 +181,7 @@ public:
      * @throws LuaUnexpectedArgumentType Type mismatch
      * @return Result
      */
-    LUA_VM_ARGUMENT_GET_FUNCTION(double, LuaArgumentType::LuaTypeNumber, Number)
+    LUA_VM_ARGUMENT_GET_FUNCTION(double &, LuaArgumentType::LuaTypeNumber, Number)
         return *reinterpret_cast<double *>(value);
     }
 
@@ -191,7 +190,7 @@ public:
      * @throws LuaUnexpectedArgumentType Type mismatch
      * @return Result
      */
-    LUA_VM_ARGUMENT_GET_FUNCTION(int, LuaArgumentType::LuaTypeInteger, Integer)
+    LUA_VM_ARGUMENT_GET_FUNCTION(int &, LuaArgumentType::LuaTypeInteger, Integer)
         return *reinterpret_cast<int *>(value);
     }
 
@@ -200,7 +199,7 @@ public:
      * @throws LuaUnexpectedArgumentType Type mismatch
      * @return Result
      */
-    LUA_VM_ARGUMENT_GET_FUNCTION(std::string, LuaArgumentType::LuaTypeString, String)
+    LUA_VM_ARGUMENT_GET_FUNCTION(std::string &, LuaArgumentType::LuaTypeString, String)
         return *reinterpret_cast<std::string *>(value);
     }
 
@@ -209,7 +208,7 @@ public:
      * @throws LuaUnexpectedArgumentType Type mismatch
      * @return Result
      */
-    LUA_VM_ARGUMENT_GET_FUNCTION(LuaObject, LuaArgumentType::LuaTypeObject, Object)
+    LUA_VM_ARGUMENT_GET_FUNCTION(LuaObject &, LuaArgumentType::LuaTypeObject, Object)
         return *reinterpret_cast<LuaObject *>(value);
     }
 

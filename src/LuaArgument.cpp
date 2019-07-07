@@ -33,7 +33,7 @@ LuaArgument::TableMapType LuaArgument::toMap() const
         throw LuaUnexpectedArgumentType(LuaArgumentType::LuaTypeTableList, this->type);
     }
 
-    const auto &original = *reinterpret_cast<TableListType *>(value);
+    TableListType &original = *reinterpret_cast<TableListType *>(value);
     TableMapType result;
     for (int i = 0; i < original.size(); i++) {
         result[LuaArgument(i + 1.)] = original[i];
