@@ -23,28 +23,14 @@ static const std::unordered_map<LuaArgumentType, std::string> STRING_TYPE = {
 /**
  * @brief Base Lua exception
  */
-// TODO: split to cpp
 class LuaException: public std::exception
 {
     char *message = nullptr;
     // TODO: make default message field
 
 protected:
-    virtual void copy(const LuaException &luaException) noexcept
-    {
-        if (!luaException.what()) {
-            return;
-        }
-
-        destroy();
-        this->message = new char[std::strlen(luaException.message)];
-        std::strcpy(this->message, luaException.message);
-    }
-
-    virtual void destroy() noexcept
-    {
-        delete[] message;
-    }
+    virtual void copy(const LuaException &luaException) noexcept;
+    virtual void destroy() noexcept;
 
     // TODO: make move method
 
@@ -144,15 +130,7 @@ public:
         );
     }
 
-    const char *what() const noexcept override
-    {
-        const char *message = LuaException::what();
-
-        if (!message) {
-            return "Unexpected argument type";
-        }
-        return message;
-    }
+    const char *what() const noexcept override;
 
     ~LuaUnexpectedType() override = default;
 };

@@ -29,7 +29,6 @@ public:
     size_t operator()(const LuaArgument &argument) const;
 };
 
-// TODO: split to cpp
 /**
  * @brief Lua dynamic type object
  *
@@ -89,9 +88,7 @@ public:
      * @param type Pointer meaning
      */
     explicit LuaArgument(void *value, PointerType type = POINTER_USERDATA)
-        :
-        value(value),
-        type(static_cast<LuaArgumentType>(type))
+        : value(value), type(static_cast<LuaArgumentType>(type))
     {}
 
     /**
@@ -221,22 +218,7 @@ public:
      * @throws LuaUnexpectedArgumentType Type mismatch (expected TABLE_MAP or TABLE_LIST)
      * @return Result
      */
-    TableMapType toMap() const
-    {
-        if (this->type == LuaArgumentType::LuaTypeTableMap) {
-            return *reinterpret_cast<TableMapType *>(value);
-        }
-        if (this->type != LuaArgumentType::LuaTypeTableList) {
-            throw LuaUnexpectedArgumentType(LuaArgumentType::LuaTypeTableList, this->type);
-        }
-
-        const auto &original = *reinterpret_cast<TableListType *>(value);
-        TableMapType result;
-        for (int i = 0; i < original.size(); i++) {
-            result[LuaArgument(i + 1.)] = original[i];
-        }
-        return result;
-    }
+    TableMapType toMap() const;
 
     /**
      * @brief Map getter
@@ -244,43 +226,14 @@ public:
      * @throws LuaCannotTransformArgumentToList
      * @return Result
      */
-    TableListType toList() const
-    {
-        if (this->type == LuaArgumentType::LuaTypeTableList) {
-            return *reinterpret_cast<TableListType *>(value);
-        }
-        if (this->type != LuaArgumentType::LuaTypeTableMap) {
-            throw LuaUnexpectedArgumentType(LuaArgumentType::LuaTypeTableMap, this->type);
-        }
-
-        const auto &original = *reinterpret_cast<TableMapType *>(value);
-        TableListType result(original.size());
-        for (int i = 0; i < original.size(); i++) {
-            try {
-                result[i] = original.at(LuaArgument(i + 1.));
-            } catch (const std::out_of_range &) {
-                throw LuaCannotTransformArgumentToList();
-            }
-        }
-        return result;
-    }
+    TableListType toList() const;
 
     /**
      * @brief Pointer getter
      * @throws LuaUnexpectedArgumentType Type mismatch (expected USERDATA or LIGHTUSERDATA)
      * @return void pointer
      */
-    void *toPointer() const
-    {
-        if (!(
-            this->type == LuaArgumentType::LuaTypeLightUserdata
-                || this->type == LuaArgumentType::LuaTypeUserdata
-        )) {
-            throw LuaUnexpectedArgumentType(LuaArgumentType::LuaTypeLightUserdata, this->type);
-        }
-
-        return value;
-    }
+    void *toPointer() const;
 
     /**
      * @brief Is object nil
@@ -297,27 +250,7 @@ public:
      * @param stringClass Lua MTASA object's class (may be empty to autodetect)
      * @return Result MTASA Object reference
      */
-    LuaObject &extractObject(const std::string &stringClass = "")
-    {
-        if (this->type == LuaArgumentType::LuaTypeObject) {
-            return *reinterpret_cast<LuaObject *>(this->value);
-        }
-
-        if (!(this->type == LuaArgumentType::LuaTypeUserdata || this->type == LuaArgumentType::LuaTypeLightUserdata)) {
-            throw LuaUnexpectedArgumentType(LuaArgumentType::LuaTypeLightUserdata, this->type);
-        }
-
-        // Do not need to clear memory
-
-        ObjectId id(*reinterpret_cast<unsigned long *>(this->value));
-        this->value = new LuaObject(
-            id,
-            stringClass
-        );
-        this->type = LuaArgumentType::LuaTypeObject;
-
-        return *reinterpret_cast<LuaObject *>(this->value);
-    }
+    LuaObject &extractObject(const std::string &stringClass = "");
 
     /**
      * @brief Type getter

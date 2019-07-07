@@ -12,7 +12,6 @@
 /**
  * @brief Extends lua_State functional
  */
-// TODO: split to cpp
 class LuaVmExtended
 {
 public:
@@ -118,12 +117,7 @@ public:
     // TODO: Make functionArgs param iterators
     // TODO: Make return values expected types
     std::vector<LuaArgument>
-    call(const std::string &function, const std::list<LuaArgument> &functionArgs, int returnSize = 0) const
-    {
-        // TODO: Check lua local function calling
-        callFunction(function, functionArgs, returnSize);
-        return getCallReturn(returnSize);
-    }
+    call(const std::string &function, const std::list<LuaArgument> &functionArgs, int returnSize = 0) const;
 
     virtual ~LuaVmExtended() = default;
 
@@ -137,30 +131,7 @@ private:
      * @param functionArgs Function arguments
      * @param returnSize Return values amount
      */
-    void callFunction(const std::string &function, const std::list<LuaArgument> &functionArgs, int returnSize) const
-    {
-        lua_pushstring(luaVm, function.c_str());
-        lua_gettable(luaVm, LUA_GLOBALSINDEX);              // To get global function
-        this->pushArguments(functionArgs.cbegin(), functionArgs.cend());
-
-        int state = lua_pcall(
-            luaVm,
-            static_cast<int>(functionArgs.size()),
-            returnSize,
-            0
-        );
-
-        if (state == LUA_ERRRUN || state == LUA_ERRMEM) {                   // Error handler
-            std::string message;
-            try {
-                message = getCallReturn(std::list<LuaArgumentType>{LuaArgumentType::LuaTypeString}).front().toString();
-            } catch (const LuaException &e) {
-                message = "Cannot get error message: ";
-                message += e.what();
-            }
-            throw LuaCallException(state, message);
-        }
-    }
+    void callFunction(const std::string &function, const std::list<LuaArgument> &functionArgs, int returnSize) const;
 
     /**
      * @brief Get called function return values
@@ -168,22 +139,7 @@ private:
      * @throws LuaBadType Bad type has been captured
      * @return Result values vector
      */
-    std::vector<LuaArgument> getCallReturn(int amount = 0) const
-    {
-        if (amount <= 0) {
-            return {};
-        }
-
-        // TODO: check stack size
-        // TODO: check LUA_TNONE
-
-        std::vector<LuaArgument> result(static_cast<size_t>(amount));
-        for (int i = 0; i < amount; i++) {
-            int luaIndex = -amount + i;
-            result[i] = parseArgument(luaIndex);
-        }
-        return result;
-    }
+    std::vector<LuaArgument> getCallReturn(int amount = 0) const;
 
     /**
      * @brief Get called function return values ()
@@ -192,20 +148,7 @@ private:
      * @throws LuaBadType Bad type has been captured
      * @return Result values vector
      */
-    std::vector<LuaArgument> getCallReturn(const std::list<LuaArgumentType> &types) const
-    {
-        std::vector<LuaArgument> result(types.size());
-
-        auto index = -static_cast<int>(types.size());           ///< Stack index (starts from minimal negative)
-        auto listIterator = types.cbegin();                     ///< Type iterator
-        auto resultIterator = result.begin();                   ///< Where to place result value
-        for (; lua_type(luaVm, index) != LUA_TNONE && listIterator != types.cend(); index++, listIterator++) {
-            // While we have value on stack and type lists not ended
-            *(resultIterator++) = parseArgument(index, *listIterator);
-        }
-
-        return result;
-    }
+    std::vector<LuaArgument> getCallReturn(const std::list<LuaArgumentType> &types) const;
 
     /**
      * @brief Push MTASA object to stack
@@ -216,47 +159,17 @@ private:
     /**
      * @brief Push transformable to table-list LuaArgument
      */
-    void pushTableList(const LuaArgument &argument) const
-    {
-        const std::vector<LuaArgument> &list = argument.toList();
-
-        lua_createtable(luaVm, list.size(), 0);
-        for (int i = 0; i < list.size(); i++) {
-            this->pushArgument(list[i]);
-
-            lua_rawseti(luaVm, -2, i + 1);
-        }
-    }
+    void pushTableList(const LuaArgument &argument) const;
 
     /**
      * @brief Push transformable to table-list LuaArgument
      */
-    void pushTableMap(const LuaArgument &argument) const
-    {
-        const auto &map = argument.toMap();
-
-        lua_createtable(luaVm, 0, map.size());
-        for (const auto &pair : map) {
-            this->pushArgument(pair.first);             // Set key
-            this->pushArgument(pair.second);            // Set value
-
-            lua_rawset(luaVm, -3);                      // Set table row
-        }
-    }
+    void pushTableMap(const LuaArgument &argument) const;
 
     /**
      * Capture arguments (type autodetect)
      */
-    void captureArguments()
-    {
-        if (!arguments.empty()) {
-            arguments.clear();
-        }
-
-        for (int index = 1; lua_type(luaVm, index) != LUA_TNONE; index++) {
-            arguments.push_back(parseArgument(index));
-        }
-    }
+    void captureArguments();
 
     lua_State *luaVm;                               ///< Original VM
 
