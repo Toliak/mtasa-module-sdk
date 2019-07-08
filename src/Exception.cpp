@@ -15,13 +15,3 @@ void LuaException::destroy() noexcept
 {
     delete[] message;
 }
-
-const char *LuaUnexpectedType::what() const noexcept
-{
-    const char *message = LuaException::what();
-
-    if (!message) {
-        return "Unexpected argument type";
-    }
-    return message;
-}

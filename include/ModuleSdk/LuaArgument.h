@@ -43,6 +43,7 @@ public:
     using TableListType = std::vector<LuaArgument>;
     using TableMapType = std::unordered_map<LuaArgument, LuaArgument, LuaArgumentHash>;
 
+    // TODO: change constructor value's name
     /**
      * @brief Nil constructor
      */

@@ -242,10 +242,17 @@ int tableToList(lua_State *luaVm)
         return 1;
     }
 
-    LuaArgument::TableListType list = table.toList();
+    LuaArgument::TableListType list;
+    try {
+        list = table.toList();
+    } catch (LuaException &e) {
+        lua.pushArgument(
+            LuaArgument(false)
+        );
+        return 1;
+    }
 
-    lua.pushArguments(list.cbegin(), list.cend());
-    return list.size();
+    return lua.pushArguments(list.cbegin(), list.cend());
 }
 
 int listToMap(lua_State *luaVm)

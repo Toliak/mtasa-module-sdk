@@ -212,6 +212,12 @@ local TEST_FUNCTIONS = {
         expected = { 0, 1, 2, 3, 4, 5 },
     },
     {
+        name = "test_tableToList",
+        description = "Table (parsed as map in C++) to list (bad)",
+        input = { { 0, 1, 2, 3, 4, 5, key='value' } },
+        expected = { false },
+    },
+    {
         name = "test_listToMap",
         description = "list to map",
         input = { },
