@@ -22,9 +22,11 @@ EXTERN_C bool InitModule(ILuaModuleManager10 *pManager, char *szModuleName, char
     strncpy(szAuthor, MODULE_AUTHOR, MAX_INFO_LENGTH);
     (*fVersion) = MODULE_VERSION;
 
+#ifndef WIN32
     if (!ImportLua()) {
         return false;
     }
+#endif
 
     ms_bInitWorked = true;
     return true;
