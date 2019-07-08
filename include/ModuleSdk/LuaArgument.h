@@ -44,12 +44,11 @@ public:
     using TableMapType = std::unordered_map<LuaArgument, LuaArgument, LuaArgumentHash>;
 
     // TODO: change constructor value's name
+    // TODO: make constructors noexplicit
     /**
      * @brief Nil constructor
      */
-    explicit LuaArgument()
-        : value(nullptr), type(LuaArgumentType::LueTypeNil)
-    {}
+    explicit LuaArgument() = default;
 
     /**
      * @brief Boolean constructor
@@ -80,8 +79,8 @@ public:
     /// Constructor pointer meaning
     enum PointerType
     {
-        POINTER_USERDATA = LuaArgumentType::LuaTypeUserdata,
-        POINTER_LIGHTUSERDATA = LuaArgumentType::LuaTypeLightUserdata,
+        PointerUserdata = LuaArgumentType::LuaTypeUserdata,
+        PointerLightuserdata = LuaArgumentType::LuaTypeLightUserdata,
     };
 
     /**
@@ -89,7 +88,7 @@ public:
      * @param value Initial pointer
      * @param type Pointer meaning
      */
-    explicit LuaArgument(void *value, PointerType type = POINTER_USERDATA)
+    explicit LuaArgument(void *value, PointerType type = PointerUserdata)
         : value(value), type(static_cast<LuaArgumentType>(type))
     {}
 
@@ -129,7 +128,7 @@ public:
      * @brief Copy constructor
      */
     LuaArgument(const LuaArgument &argument)
-        : type(argument.type), value(nullptr)
+        : type(argument.type)
     {
         this->copy(argument);
     }
@@ -137,11 +136,9 @@ public:
     /**
      * @brief Move constructor
      */
-    LuaArgument(LuaArgument &&obj) noexcept
-        : value(obj.value), type(obj.type)
+    LuaArgument(LuaArgument &&argument) noexcept
     {
-        obj.value = nullptr;
-        obj.type = LuaArgumentType::LueTypeNil;
+        this->move(std::forward<LuaArgument>(argument));
     }
 
     /**
@@ -157,14 +154,8 @@ public:
 
     LuaArgument &operator=(LuaArgument &&argument) noexcept
     {
-        // Move value and type
-        this->value = argument.value;
-        this->type = argument.type;
-
-        // TODO: make clear method
-        // Clear
-        argument.value = nullptr;
-        argument.type = LuaArgumentType::LueTypeNil;
+        this->destroy();
+        this->move(std::forward<LuaArgument>(argument));
 
         return *this;
     }
@@ -242,7 +233,7 @@ public:
      */
     bool isNil() const
     {
-        return this->type == LuaArgumentType::LueTypeNil;
+        return this->type == LuaArgumentType::LuaTypeNil;
     }
 
     /**
@@ -271,14 +262,12 @@ public:
     }
 
 private:
-
-    // TODO: make move method
-
+    virtual void move(LuaArgument &&argument);
     virtual void copy(const LuaArgument &argument);
     virtual void destroy() noexcept;
 
-    void *value;                                ///< Pointer to allocated value (unknown type)
-    LuaArgumentType type;                       ///< Object's type
+    void *value = nullptr;                                ///< Pointer to allocated value (unknown type)
+    LuaArgumentType type = LuaTypeNil;                    ///< Object's type
 };
 
 bool operator==(const LuaArgument &left, const LuaArgument &right);

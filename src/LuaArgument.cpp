@@ -96,10 +96,21 @@ LuaObject &LuaArgument::extractObject(const std::string &stringClass)
     return *reinterpret_cast<LuaObject *>(this->value);
 }
 
+void LuaArgument::move(LuaArgument &&argument)
+{
+    // Move value and type
+    this->value = argument.value;
+    this->type = argument.type;
+
+    // Clear old argument
+    argument.value = nullptr;
+    argument.type = LuaArgumentType::LuaTypeNil;
+}
+
 void LuaArgument::copy(const LuaArgument &argument)
 {
     if (!argument.value) {                          // Nil
-        this->type = LuaArgumentType::LueTypeNil;
+        this->type = LuaArgumentType::LuaTypeNil;
         this->value = nullptr;
         return;
     }

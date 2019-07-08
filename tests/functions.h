@@ -19,4 +19,5 @@ namespace TestFunction
     int advancedTable(lua_State *);
     int tableToList(lua_State *);
     int listToMap(lua_State *);
+    int constructors(lua_State *);
 }

@@ -29,7 +29,7 @@ std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgument
 
 void LuaVmExtended::pushArgument(const LuaArgument &argument) const
 {
-    if (argument.getType() == LuaArgumentType::LueTypeNil) {
+    if (argument.getType() == LuaArgumentType::LuaTypeNil) {
         lua_pushnil(luaVm);
     } else if (argument.getType() == LuaArgumentType::LuaTypeNumber) {
         lua_pushnumber(luaVm, argument.toNumber());
@@ -65,7 +65,7 @@ LuaArgument LuaVmExtended::parseArgument(int index) const
     } else if (lua_isuserdata(luaVm, index)) {
         return parseArgument(index, LuaArgumentType::LuaTypeUserdata, true);
     } else if (lua_isnil(luaVm, index)) {
-        return parseArgument(index, LuaArgumentType::LueTypeNil, true);
+        return parseArgument(index, LuaArgumentType::LuaTypeNil, true);
     } else if (lua_istable(luaVm, index)) {
         // Cannot autodetect list
         return parseArgument(index, LuaArgumentType::LuaTypeTableMap, true);
@@ -90,7 +90,7 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
             }
         },
         {
-            LuaArgumentType::LueTypeNil,
+            LuaArgumentType::LuaTypeNil,
             [](lua_State *vm, int index) -> int
             {
                 return lua_isnil(vm, index);

@@ -56,6 +56,7 @@ EXTERN_C void RegisterFunctions(lua_State *luaVM)
     pModuleManager->RegisterFunction(luaVM, "test_advancedTable", TestFunction::advancedTable);
     pModuleManager->RegisterFunction(luaVM, "test_tableToList", TestFunction::tableToList);
     pModuleManager->RegisterFunction(luaVM, "test_listToMap", TestFunction::listToMap);
+    pModuleManager->RegisterFunction(luaVM, "test_constructors", TestFunction::constructors);
 }
 
 EXTERN_C bool DoPulse()

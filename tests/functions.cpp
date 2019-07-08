@@ -274,5 +274,40 @@ int listToMap(lua_State *luaVm)
     return 1;
 }
 
+int constructors(lua_State *luaVm)
+{
+    LuaVmExtended lua(luaVm);
+
+    auto args = lua.getArguments();
+    LuaArgument argument = args.back();
+
+    // Copy constructor
+    LuaArgument copy(argument);
+
+    // Copy assignment
+    LuaArgument copyAssignment = argument;
+
+    try {
+        copy.extractObject();
+        copyAssignment.extractObject();
+    } catch (LuaException &) {
+
+    }
+
+    // Move constructor
+    LuaArgument move(std::move(copy));
+
+    // Move assignment
+    LuaArgument moveAssignment = std::move(copyAssignment);
+
+    std::list<LuaArgument> pushArgs{
+        argument,
+        move,
+        moveAssignment,
+    };
+
+    return lua.pushArguments(pushArgs.cbegin(), pushArgs.cend());
+}
+
 }
 

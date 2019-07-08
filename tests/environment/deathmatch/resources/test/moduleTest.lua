@@ -230,6 +230,12 @@ local TEST_FUNCTIONS = {
                          ["key"] = 876,
                      } },
     },
+    {
+        name = "test_constructors",
+        description = "Successful constructor tests",
+        input = { "string" },
+        expected = {"string", "string", "string"},
+    }
 }
 
 addEventHandler("onResourceStart", resourceRoot, function()

@@ -8,7 +8,7 @@
 #include "LuaArgumentType.h"
 
 static const std::unordered_map<LuaArgumentType, std::string> STRING_TYPE = {
-    {LuaArgumentType::LueTypeNil, "Nil"},
+    {LuaArgumentType::LuaTypeNil, "Nil"},
     {LuaArgumentType::LuaTypeBoolean, "Boolean"},
     {LuaArgumentType::LuaTypeLightUserdata, "Light userdata"},
     {LuaArgumentType::LuaTypeNumber, "Number"},
