@@ -51,7 +51,7 @@ EXTERN_C void RegisterFunctions(lua_State *luaVM)
     pModuleManager->RegisterFunction(luaVM, "test_strictTypes", TestFunction::strictTypes);
     pModuleManager->RegisterFunction(luaVM, "test_simpleTable", TestFunction::simpleTable);
     pModuleManager->RegisterFunction(luaVM, "test_callGetElementPosition", TestFunction::callGetElementPosition);
-    pModuleManager->RegisterFunction(luaVM, "test_call", TestFunction::call);
+    pModuleManager->RegisterFunction(luaVM, "test_callElementGetDimensionMethod", TestFunction::callElementGetDimensionMethod);
     pModuleManager->RegisterFunction(luaVM, "test_pushFunction", TestFunction::pushFunction);
     pModuleManager->RegisterFunction(luaVM, "test_advancedTable", TestFunction::advancedTable);
     pModuleManager->RegisterFunction(luaVM, "test_tableToList", TestFunction::tableToList);
@@ -61,6 +61,7 @@ EXTERN_C void RegisterFunctions(lua_State *luaVM)
     pModuleManager->RegisterFunction(luaVM, "test_checkGetArgumentsBad", TestFunction::checkGetArgumentsBad);
     pModuleManager->RegisterFunction(luaVM, "test_checkGetArgumentsOutOfRange", TestFunction::checkGetArgumentsOutOfRange);
     pModuleManager->RegisterFunction(luaVM, "test_checkParseArgumentObject", TestFunction::checkParseArgumentObject);
+    pModuleManager->RegisterFunction(luaVM, "test_callFunction", TestFunction::callFunction);
 }
 
 EXTERN_C bool DoPulse()

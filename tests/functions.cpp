@@ -179,7 +179,7 @@ int callGetElementPosition(lua_State *luaVm)
     return callReturn.size();
 }
 
-int call(lua_State *luaVm)
+int callElementGetDimensionMethod(lua_State *luaVm)
 {
     LuaVmExtended lua(luaVm);
     LuaArgument element = lua.parseArgument(1, LuaTypeUserdata);
@@ -377,6 +377,16 @@ int checkParseArgumentObject(lua_State *luaVm)
         object.getType() == LuaTypeObject
     ));
     return 1;
+}
+
+int callFunction(lua_State *luaVm)
+{
+    LuaVmExtended lua(luaVm);
+
+    std::string name = lua.parseArgument(1, LuaTypeString).toString();
+    auto result = lua.call(name, {}, 1);
+
+    return lua.pushArguments(result.cbegin(), result.cend());
 }
 
 }

@@ -14,7 +14,7 @@ namespace TestFunction
     int strictTypes(lua_State *);
     int simpleTable(lua_State *);
     int callGetElementPosition(lua_State *);
-    int call(lua_State *);
+    int callElementGetDimensionMethod(lua_State *);
     int pushFunction(lua_State *);
     int advancedTable(lua_State *);
     int tableToList(lua_State *);
@@ -24,4 +24,5 @@ namespace TestFunction
     int checkGetArgumentsBad(lua_State *);
     int checkGetArgumentsOutOfRange(lua_State *);
     int checkParseArgumentObject(lua_State *);
+    int callFunction(lua_State *);
 }

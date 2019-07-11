@@ -163,7 +163,6 @@ std::vector<LuaArgument> LuaVmExtended::call(const std::string &function,
                                              const std::list<LuaArgument> &functionArgs,
                                              int returnSize) const
 {
-    // TODO: Check lua local function calling
     callFunction(function, functionArgs, returnSize);
     return getCallReturn(returnSize);
 }

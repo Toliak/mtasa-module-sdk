@@ -144,7 +144,7 @@ local TEST_FUNCTIONS = {
         },
     },
     {
-        name = "test_call",
+        name = "test_callElementGetDimensionMethod",
         description = "Call element:getDimension",
         input = { TEST_ELEMENTS[2] },
         expected = { TEST_ELEMENTS[2]:getDimension() },
@@ -259,6 +259,12 @@ local TEST_FUNCTIONS = {
         description = "Check parseArgument for lua object",
         input = { TEST_ELEMENTS[1] },
         expected = { true },
+    },
+    {
+        name = "test_callFunction",
+        description = "Call global function",
+        input = { "returnFive" },
+        expected = { returnFive() },
     },
 }
 
