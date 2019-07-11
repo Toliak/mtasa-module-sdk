@@ -10,18 +10,18 @@ std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgument
         // While we have value on stack and type lists not ended
         try {
             result[index - 1] = parseArgument(index, *listIterator);
-        } catch (LuaException &) {
+        } catch (LuaUnexpectedType &e) {
+            // Extends captured exception
             throw LuaUnexpectedType(
                 *listIterator,
                 static_cast<LuaArgumentType>(lua_type(luaVm, index)),
                 index
             );
         }
-        // TODO: extend LuaUnexpectedType and re-throw LuaBadType
     }
 
     if (index - 1 != types.size()) {
-        throw std::out_of_range("Not enough arguments");                //TODO: LuaOutOfRange
+        throw LuaOutOfRange("Not enough arguments");
     }
 
     return result;

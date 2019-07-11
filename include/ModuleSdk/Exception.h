@@ -103,7 +103,7 @@ public:
  */
 class LuaBadType: public LuaException
 {
-protected:
+private:
     const char *messageDefault = "Bad type";
 
 public:
@@ -127,7 +127,7 @@ public:
  */
 class LuaUnexpectedType: public LuaException
 {
-protected:
+private:
     const char *messageDefault = "Unexpected type";
 
 public:
@@ -168,7 +168,7 @@ public:
  */
 class LuaUnexpectedPushType: public LuaException
 {
-protected:
+private:
     const char *messageDefault = "Unexpected push type";
 
 public:
@@ -200,6 +200,28 @@ public:
     explicit LuaCallException(int errorId, const std::string &message = "")
     {
         this->setMessage("Error code: " + std::to_string(errorId) + ". Message: " + message);
+    }
+};
+
+/**
+ * @brief Out of range exception
+ */
+class LuaOutOfRange: public LuaException
+{
+private:
+    const char *messageDefault = "Out of range";
+
+public:
+    using LuaException::LuaException;
+
+    explicit LuaOutOfRange(const std::string &message)
+    {
+        this->setMessage(message);
+    }
+
+    const char *getMessageDefault() const override
+    {
+        return this->messageDefault;
     }
 };
 
@@ -237,7 +259,7 @@ public:
  */
 class LuaCannotTransformArgumentToList: public LuaArgumentException
 {
-protected:
+private:
     const char *messageDefault = "Cannot transform to list";
 
 public:
