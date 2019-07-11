@@ -269,6 +269,9 @@ local TEST_FUNCTIONS = {
 }
 
 addEventHandler("onResourceStart", resourceRoot, function()
+    iprint('===============[ TESTING DEV ]===============')
+    outputDebugString(test_dev_status())
+
     iprint('===============[ TESTING START ]===============')
 
     for _, v in pairs(TEST_FUNCTIONS) do

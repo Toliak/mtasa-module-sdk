@@ -42,26 +42,31 @@ EXTERN_C void RegisterFunctions(lua_State *luaVM)
         return;
     }
 
-    pModuleManager->RegisterFunction(luaVM, "test_simple", TestFunction::simple);
-    pModuleManager->RegisterFunction(luaVM, "test_simpleList", TestFunction::simpleList);
-    pModuleManager->RegisterFunction(luaVM, "test_echo", TestFunction::echo);
-    pModuleManager->RegisterFunction(luaVM, "test_isNumber", TestFunction::isNumber);
-    pModuleManager->RegisterFunction(luaVM, "test_isString", TestFunction::isString);
-    pModuleManager->RegisterFunction(luaVM, "test_echoElement", TestFunction::echoElement);
-    pModuleManager->RegisterFunction(luaVM, "test_strictTypes", TestFunction::strictTypes);
-    pModuleManager->RegisterFunction(luaVM, "test_simpleTable", TestFunction::simpleTable);
-    pModuleManager->RegisterFunction(luaVM, "test_callGetElementPosition", TestFunction::callGetElementPosition);
-    pModuleManager->RegisterFunction(luaVM, "test_callElementGetDimensionMethod", TestFunction::callElementGetDimensionMethod);
-    pModuleManager->RegisterFunction(luaVM, "test_pushFunction", TestFunction::pushFunction);
-    pModuleManager->RegisterFunction(luaVM, "test_advancedTable", TestFunction::advancedTable);
-    pModuleManager->RegisterFunction(luaVM, "test_tableToList", TestFunction::tableToList);
-    pModuleManager->RegisterFunction(luaVM, "test_listToMap", TestFunction::listToMap);
-    pModuleManager->RegisterFunction(luaVM, "test_constructors", TestFunction::constructors);
-    pModuleManager->RegisterFunction(luaVM, "test_checkGetArgumentsUnexpected", TestFunction::checkGetArgumentsUnexpected);
-    pModuleManager->RegisterFunction(luaVM, "test_checkGetArgumentsBad", TestFunction::checkGetArgumentsBad);
-    pModuleManager->RegisterFunction(luaVM, "test_checkGetArgumentsOutOfRange", TestFunction::checkGetArgumentsOutOfRange);
-    pModuleManager->RegisterFunction(luaVM, "test_checkParseArgumentObject", TestFunction::checkParseArgumentObject);
-    pModuleManager->RegisterFunction(luaVM, "test_callFunction", TestFunction::callFunction);
+    pModuleManager->RegisterFunction(
+        luaVM,
+        "test_dev_status",
+        [](lua_State *luaVm) -> int
+        {
+            std::string result;
+            result += "Function amount: " + std::to_string(TestFunction::allFunctions.size()) + "\n";
+            result += "Functions: \n";
+
+            for (const auto &pair : TestFunction::allFunctions) {
+                result += "\t" + pair.first + "\n";
+            }
+
+            lua_pushstring(luaVm, result.c_str());
+            return 1;
+        }
+    );
+
+    for (const auto &pair : TestFunction::allFunctions) {
+        pModuleManager->RegisterFunction(
+            luaVM,
+            (std::string("test_") + pair.first).c_str(),
+            pair.second
+        );
+    }
 }
 
 EXTERN_C bool DoPulse()

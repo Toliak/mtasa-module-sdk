@@ -2,8 +2,25 @@
 
 #include "functions.h"
 
+
+#define CREATE_TEST_FUNCTION(x) \
+class _test_function_class_##x  \
+{                               \
+    static int function(lua_State *);  \
+                                \
+    static _AddType _add;       \
+};                              \
+_AddType _test_function_class_##x::_add                                 \
+    = allFunctions.insert(std::pair<std::string, Type>(#x, _test_function_class_##x::function));    \
+int _test_function_class_##x::function(lua_State *luaVm)
+
+
 namespace TestFunction
 {
+
+using _AddType = std::pair<decltype(allFunctions)::iterator, bool>;
+
+decltype(allFunctions) allFunctions = {};
 
 std::string stackDump(lua_State *L)
 {
@@ -36,14 +53,14 @@ std::string stackDump(lua_State *L)
     return result;
 }
 
-int simple(lua_State *luaVm)
+CREATE_TEST_FUNCTION(simple)
 {
     LuaVmExtended lua(luaVm);
     lua.pushArgument(LuaArgument(std::string("Yes!")));
     return 1;
 }
 
-int simpleList(lua_State *luaVm)
+CREATE_TEST_FUNCTION(simpleList)
 {
     LuaVmExtended lua(luaVm);
     std::list<LuaArgument> list = {
@@ -57,7 +74,7 @@ int simpleList(lua_State *luaVm)
     return list.size();
 }
 
-int echo(lua_State *luaVm)
+CREATE_TEST_FUNCTION(echo)
 {
     LuaVmExtended lua(luaVm);
     auto vector = lua.getArguments();
@@ -69,7 +86,7 @@ int echo(lua_State *luaVm)
     return vector.size();
 }
 
-int isNumber(lua_State *luaVm)
+CREATE_TEST_FUNCTION(isNumber)
 {
     LuaVmExtended lua(luaVm);
     try {
@@ -82,7 +99,7 @@ int isNumber(lua_State *luaVm)
     return 1;
 }
 
-int isString(lua_State *luaVm)
+CREATE_TEST_FUNCTION(isString)
 {
     LuaVmExtended lua(luaVm);
     try {
@@ -95,7 +112,7 @@ int isString(lua_State *luaVm)
     return 1;
 }
 
-int echoElement(lua_State *luaVm)
+CREATE_TEST_FUNCTION(echoElement)
 {
     LuaVmExtended lua(luaVm);
     LuaArgument arg;
@@ -116,7 +133,7 @@ int echoElement(lua_State *luaVm)
     return 1;
 }
 
-int strictTypes(lua_State *luaVm)
+CREATE_TEST_FUNCTION(strictTypes)
 {
     LuaVmExtended lua(luaVm);
     try {
@@ -129,7 +146,7 @@ int strictTypes(lua_State *luaVm)
     return 1;
 }
 
-int simpleTable(lua_State *luaVm)
+CREATE_TEST_FUNCTION(simpleTable)
 {
     lua_createtable(luaVm, 1, 0);
     lua_createtable(luaVm, 0, 2); /* creates and pushes new table on top of Lua stack */
@@ -147,7 +164,7 @@ int simpleTable(lua_State *luaVm)
     return 1;
 }
 
-int callGetElementPosition(lua_State *luaVm)
+CREATE_TEST_FUNCTION(callGetElementPosition)
 {
     LuaVmExtended lua(luaVm);
 
@@ -179,7 +196,7 @@ int callGetElementPosition(lua_State *luaVm)
     return callReturn.size();
 }
 
-int callElementGetDimensionMethod(lua_State *luaVm)
+CREATE_TEST_FUNCTION(callElementGetDimensionMethod)
 {
     LuaVmExtended lua(luaVm);
     LuaArgument element = lua.parseArgument(1, LuaTypeUserdata);
@@ -194,7 +211,7 @@ int callElementGetDimensionMethod(lua_State *luaVm)
     return 1;
 }
 
-int pushFunction(lua_State *luaVm)
+CREATE_TEST_FUNCTION(pushFunction)
 {
     LuaVmExtended lua(luaVm);
 
@@ -208,7 +225,7 @@ int pushFunction(lua_State *luaVm)
     return 1;
 }
 
-int advancedTable(lua_State *luaVm)
+CREATE_TEST_FUNCTION(advancedTable)
 {
     LuaVmExtended lua(luaVm);
 
@@ -232,7 +249,7 @@ int advancedTable(lua_State *luaVm)
     return arguments.size();
 }
 
-int tableToList(lua_State *luaVm)
+CREATE_TEST_FUNCTION(tableToList)
 {
     LuaVmExtended lua(luaVm);
 
@@ -255,7 +272,7 @@ int tableToList(lua_State *luaVm)
     return lua.pushArguments(list.cbegin(), list.cend());
 }
 
-int listToMap(lua_State *luaVm)
+CREATE_TEST_FUNCTION(listToMap)
 {
     LuaVmExtended lua(luaVm);
 
@@ -274,7 +291,7 @@ int listToMap(lua_State *luaVm)
     return 1;
 }
 
-int constructors(lua_State *luaVm)
+CREATE_TEST_FUNCTION(constructors)
 {
     LuaVmExtended lua(luaVm);
 
@@ -309,7 +326,7 @@ int constructors(lua_State *luaVm)
     return lua.pushArguments(pushArgs.cbegin(), pushArgs.cend());
 }
 
-int checkGetArgumentsUnexpected(lua_State *luaVm)
+CREATE_TEST_FUNCTION(checkGetArgumentsUnexpected)
 {
     LuaVmExtended lua(luaVm);
 
@@ -327,7 +344,7 @@ int checkGetArgumentsUnexpected(lua_State *luaVm)
     return 1;
 }
 
-int checkGetArgumentsBad(lua_State *luaVm)
+CREATE_TEST_FUNCTION(checkGetArgumentsBad)
 {
     LuaVmExtended lua(luaVm);
 
@@ -344,7 +361,7 @@ int checkGetArgumentsBad(lua_State *luaVm)
     return 1;
 }
 
-int checkGetArgumentsOutOfRange(lua_State *luaVm)
+CREATE_TEST_FUNCTION(checkGetArgumentsOutOfRange)
 {
     LuaVmExtended lua(luaVm);
 
@@ -361,7 +378,7 @@ int checkGetArgumentsOutOfRange(lua_State *luaVm)
     return 1;
 }
 
-int checkParseArgumentObject(lua_State *luaVm)
+CREATE_TEST_FUNCTION(checkParseArgumentObject)
 {
     LuaVmExtended lua(luaVm);
 
@@ -379,7 +396,7 @@ int checkParseArgumentObject(lua_State *luaVm)
     return 1;
 }
 
-int callFunction(lua_State *luaVm)
+CREATE_TEST_FUNCTION(callFunction)
 {
     LuaVmExtended lua(luaVm);
 
