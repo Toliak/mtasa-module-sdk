@@ -20,4 +20,8 @@ namespace TestFunction
     int tableToList(lua_State *);
     int listToMap(lua_State *);
     int constructors(lua_State *);
+    int checkGetArgumentsUnexpected(lua_State *);
+    int checkGetArgumentsBad(lua_State *);
+    int checkGetArgumentsOutOfRange(lua_State *);
+    int checkParseArgumentObject(lua_State *);
 }

@@ -235,7 +235,31 @@ local TEST_FUNCTIONS = {
         description = "Successful constructor tests",
         input = { "string" },
         expected = {"string", "string", "string"},
-    }
+    },
+    {
+        name = "test_checkGetArgumentsUnexpected",
+        description = "Check getArguments exception LuaUnexpectedType",
+        input = { "string" },
+        expected = { true },
+    },
+    {
+        name = "test_checkGetArgumentsBad",
+        description = "Check getArguments exception LuaBadType",
+        input = { returnFive },
+        expected = { true },
+    },
+    {
+        name = "test_checkGetArgumentsOutOfRange",
+        description = "Check getArguments exception LuaOutOfRange",
+        input = {  },
+        expected = { true },
+    },
+    {
+        name = "test_checkParseArgumentObject",
+        description = "Check parseArgument for lua object",
+        input = { TEST_ELEMENTS[1] },
+        expected = { true },
+    },
 }
 
 addEventHandler("onResourceStart", resourceRoot, function()

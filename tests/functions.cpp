@@ -309,5 +309,75 @@ int constructors(lua_State *luaVm)
     return lua.pushArguments(pushArgs.cbegin(), pushArgs.cend());
 }
 
+int checkGetArgumentsUnexpected(lua_State *luaVm)
+{
+    LuaVmExtended lua(luaVm);
+
+    try {
+        lua.getArguments({LuaTypeNumber});      // Exception here
+
+        lua.pushArgument(LuaArgument(false));
+    } catch (LuaUnexpectedType &e) {
+        lua.pushArgument(LuaArgument(true));
+    } catch (LuaException &) {
+        lua.pushArgument(LuaArgument(false));
+    }
+
+    lua.pushArgument(LuaArgument(true));
+    return 1;
+}
+
+int checkGetArgumentsBad(lua_State *luaVm)
+{
+    LuaVmExtended lua(luaVm);
+
+    try {
+        lua.getArguments();
+
+        lua.pushArgument(LuaArgument(false));
+    } catch (LuaBadType &e) {
+        lua.pushArgument(LuaArgument(true));
+    } catch (LuaException &) {
+        lua.pushArgument(LuaArgument(false));
+    }
+
+    return 1;
+}
+
+int checkGetArgumentsOutOfRange(lua_State *luaVm)
+{
+    LuaVmExtended lua(luaVm);
+
+    try {
+        lua.getArguments({LuaTypeNumber, LuaTypeNumber});
+
+        lua.pushArgument(LuaArgument(false));
+    } catch (LuaOutOfRange &e) {
+        lua.pushArgument(LuaArgument(true));
+    } catch (LuaException &) {
+        lua.pushArgument(LuaArgument(false));
+    }
+
+    return 1;
+}
+
+int checkParseArgumentObject(lua_State *luaVm)
+{
+    LuaVmExtended lua(luaVm);
+
+    LuaArgument object;
+    try {
+        object = lua.parseArgument(1, LuaTypeObject);
+    } catch (LuaException &) {
+        lua.pushArgument(LuaArgument(false));
+        return 1;
+    }
+
+    lua.pushArgument(LuaArgument(
+        object.getType() == LuaTypeObject
+    ));
+    return 1;
+}
+
 }
 

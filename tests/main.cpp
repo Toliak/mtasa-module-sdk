@@ -57,6 +57,10 @@ EXTERN_C void RegisterFunctions(lua_State *luaVM)
     pModuleManager->RegisterFunction(luaVM, "test_tableToList", TestFunction::tableToList);
     pModuleManager->RegisterFunction(luaVM, "test_listToMap", TestFunction::listToMap);
     pModuleManager->RegisterFunction(luaVM, "test_constructors", TestFunction::constructors);
+    pModuleManager->RegisterFunction(luaVM, "test_checkGetArgumentsUnexpected", TestFunction::checkGetArgumentsUnexpected);
+    pModuleManager->RegisterFunction(luaVM, "test_checkGetArgumentsBad", TestFunction::checkGetArgumentsBad);
+    pModuleManager->RegisterFunction(luaVM, "test_checkGetArgumentsOutOfRange", TestFunction::checkGetArgumentsOutOfRange);
+    pModuleManager->RegisterFunction(luaVM, "test_checkParseArgumentObject", TestFunction::checkParseArgumentObject);
 }
 
 EXTERN_C bool DoPulse()
