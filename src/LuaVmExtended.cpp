@@ -81,6 +81,7 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
         {LuaArgumentType::LuaTypeNumber, lua_isnumber},
         {LuaArgumentType::LuaTypeString, lua_isstring},
         {LuaArgumentType::LuaTypeUserdata, lua_isuserdata},
+        {LuaArgumentType::LuaTypeObject, lua_isuserdata},
 
         {
             LuaArgumentType::LuaTypeBoolean,
@@ -103,7 +104,6 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
                 return lua_istable(vm, index);
             }
         },
-        // TODO: add LuaTypeObject
     };      ///< Checker function dictionary
 
     if (!force) {               // No need to check type, if force
@@ -121,16 +121,21 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
 
     if (type == LuaArgumentType::LuaTypeBoolean) {
         return LuaArgument(static_cast<bool>(lua_toboolean(luaVm, index)));
-    } else if (type == LuaArgumentType::LuaTypeNumber) {
+    }
+    if (type == LuaArgumentType::LuaTypeNumber) {
         return LuaArgument(static_cast<double>(lua_tonumber(luaVm, index)));
-    } else if (type == LuaArgumentType::LuaTypeString) {
+    }
+    if (type == LuaArgumentType::LuaTypeString) {
         return LuaArgument(std::string(lua_tostring(luaVm, index)));
-    } else if (type == LuaArgumentType::LuaTypeUserdata) {
+    }
+    if (type == LuaArgumentType::LuaTypeUserdata) {
         LuaArgument result(lua_touserdata(luaVm, index));
         return result;
-    } else if (type == LuaArgumentType::LuaTypeInteger) {
+    }
+    if (type == LuaArgumentType::LuaTypeInteger) {
         return LuaArgument(static_cast<int>(lua_tointeger(luaVm, index)));
-    } else if (type == LuaArgumentType::LuaTypeTableMap) {
+    }
+    if (type == LuaArgumentType::LuaTypeTableMap) {
         LuaArgument::TableMapType result;
         lua_pushnil(luaVm);         // Current key is nil
 
@@ -144,6 +149,11 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
         }
 
         return LuaArgument(result);
+    }
+    if (type == LuaArgumentType::LuaTypeObject) {
+        LuaArgument result(lua_touserdata(luaVm, index));
+        result.extractObject();
+        return result;
     }
 
     return LuaArgument();
