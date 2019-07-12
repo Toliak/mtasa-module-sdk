@@ -1,13 +1,11 @@
 #pragma once
 
-#include <stdexcept>
-#include <list>
-#include <vector>
-#include <unordered_map>
-
-#include "lua/lua.h"
-#include "lua/ILuaModuleManager.h"
 #include "LuaArgument.h"
+#include "lua/lua.h"
+#include <list>
+#include <unordered_map>
+#include <vector>
+
 
 /**
  * @brief Extends lua_State functional
@@ -25,17 +23,9 @@ public:
 
     /**
      * @brief Parse all arguments from lua VM (types autodetect)
-     * @details Caches captured arguments
      * @return LuaArgument vector
      */
-    const std::vector<LuaArgument> &getArguments()
-    {
-        if (!isArgumentsCaptured) {
-            captureArguments();
-        }
-
-        return arguments;
-    }
+    std::vector<LuaArgument> getArguments();
 
     /**
      * @brief Parse arguments from lua VM
@@ -166,14 +156,5 @@ private:
      */
     void pushTableMap(const LuaArgument &argument) const;
 
-    /**
-     * Capture arguments (type autodetect)
-     */
-    void captureArguments();
-
     lua_State *luaVm;                               ///< Original VM
-
-    bool isArgumentsCaptured = false;               ///< Arguments capture flag
-    // TODO: remove arguments caching (in case of changing stack)
-    std::vector<LuaArgument> arguments;             ///< Captured arguments
 };

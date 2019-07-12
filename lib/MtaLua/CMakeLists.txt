@@ -16,10 +16,17 @@ set(
         ${${PROJECT_NAME}_INCLUDE_DIR}/lua/lauxlib.h
         ${${PROJECT_NAME}_INCLUDE_DIR}/lua/utils.h
 )
-set(
-        ${PROJECT_NAME}_SRC_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/LuaImports.cpp
-)
+if (WIN32)
+    set(
+            ${PROJECT_NAME}_SRC_FILES
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/empty.cpp
+    )
+else ()
+    set(
+            ${PROJECT_NAME}_SRC_FILES
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/LuaImports.cpp
+    )
+endif ()
 
 add_library(
         ${PROJECT_NAME}

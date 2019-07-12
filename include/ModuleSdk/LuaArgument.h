@@ -1,14 +1,14 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <unordered_map>
-
-#include "lua/lua.h"
-
 #include "Exception.h"
 #include "LuaArgumentType.h"
 #include "LuaObject.h"
+#include "lua/lua.h"
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 
 #define LUA_VM_ARGUMENT_GET_FUNCTION(templateType, check, typeName) \
 templateType to##typeName() const    \
@@ -31,7 +31,6 @@ public:
 
 /**
  * @brief Lua dynamic type object
- *
  */
 class LuaArgument
 {
@@ -45,41 +44,45 @@ public:
     /**
      * @brief Nil constructor
      */
-    explicit LuaArgument()
-        : value(nullptr), type(LuaArgumentType::LueTypeNil)
-    {}
+    LuaArgument() = default;
 
     /**
      * @brief Boolean constructor
      * @param value Initial boolean
      */
-    explicit LuaArgument(bool value)
-        : value(new bool(value)), type(LuaArgumentType::LuaTypeBoolean)
+    LuaArgument(bool valueBool)
+        : value(new bool(valueBool)), type(LuaArgumentType::LuaTypeBoolean)
     {}
 
     /**
      * @brief Number constructor
      * @param value Initial double
      */
-    explicit LuaArgument(double value)
-        : value(new double(value)), type(LuaArgumentType::LuaTypeNumber)
+    LuaArgument(double valueDouble)
+        : value(new double(valueDouble)), type(LuaArgumentType::LuaTypeNumber)
     {}
-
-    // TODO: make c-style string constructor
 
     /**
      * @brief String constructor
      * @param value Initial string
      */
-    explicit LuaArgument(std::string value)
-        : value(new std::string(std::move(value))), type(LuaArgumentType::LuaTypeString)
+    LuaArgument(std::string valueString)
+        : value(new std::string(std::move(valueString))), type(LuaArgumentType::LuaTypeString)
+    {}
+
+    /**
+     * @brief const char * constructor
+     * @param value C-style string
+     */
+    LuaArgument(const char *valueStringC)
+        : value(new std::string(valueStringC)), type(LuaArgumentType::LuaTypeString)
     {}
 
     /// Constructor pointer meaning
     enum PointerType
     {
-        POINTER_USERDATA = LuaArgumentType::LuaTypeUserdata,
-        POINTER_LIGHTUSERDATA = LuaArgumentType::LuaTypeLightUserdata,
+        PointerUserdata = LuaArgumentType::LuaTypeUserdata,
+        PointerLightuserdata = LuaArgumentType::LuaTypeLightUserdata,
     };
 
     /**
@@ -87,47 +90,47 @@ public:
      * @param value Initial pointer
      * @param type Pointer meaning
      */
-    explicit LuaArgument(void *value, PointerType type = POINTER_USERDATA)
-        : value(value), type(static_cast<LuaArgumentType>(type))
+    LuaArgument(void *valuePointer, PointerType type = PointerUserdata)
+        : value(valuePointer), type(static_cast<LuaArgumentType>(type))
     {}
 
     /**
      * @brief Integer constructor
      * @param value Initial int
      */
-    explicit LuaArgument(int value)
-        : value(new int(value)), type(LuaArgumentType::LuaTypeInteger)
+    LuaArgument(int valueInt)
+        : value(new int(valueInt)), type(LuaArgumentType::LuaTypeInteger)
     {}
 
     /**
      * @brief MTASA Object (userdata special case) constructor
      * @param value Initial LuaObject
      */
-    explicit LuaArgument(LuaObject value)
-        : value(new LuaObject(std::move(value))), type(LuaArgumentType::LuaTypeObject)
+    LuaArgument(LuaObject valueObject)
+        : value(new LuaObject(std::move(valueObject))), type(LuaArgumentType::LuaTypeObject)
     {}
 
     /**
      * @brief List (table special case) constructor
      * @param value Initial vector of LuaArgument
      */
-    explicit LuaArgument(const TableListType &value)
-        : value(new TableListType(value)), type(LuaArgumentType::LuaTypeTableList)
+    LuaArgument(TableListType valueList)
+        : value(new TableListType(std::move(valueList))), type(LuaArgumentType::LuaTypeTableList)
     {}
 
     /**
      * @brief Map (table special case) constructor
      * @param value Initial map of LuaArgument
      */
-    explicit LuaArgument(const TableMapType &value)
-        : value(new TableMapType(value)), type(LuaArgumentType::LuaTypeTableMap)
+    LuaArgument(TableMapType valueMap)
+        : value(new TableMapType(std::move(valueMap))), type(LuaArgumentType::LuaTypeTableMap)
     {}
 
     /**
      * @brief Copy constructor
      */
     LuaArgument(const LuaArgument &argument)
-        : type(argument.type), value(nullptr)
+        : type(argument.type)
     {
         this->copy(argument);
     }
@@ -135,11 +138,9 @@ public:
     /**
      * @brief Move constructor
      */
-    LuaArgument(LuaArgument &&obj) noexcept
-        : value(obj.value), type(obj.type)
+    LuaArgument(LuaArgument &&argument) noexcept
     {
-        obj.value = nullptr;
-        obj.type = LuaArgumentType::LueTypeNil;
+        this->move(std::forward<LuaArgument>(argument));
     }
 
     /**
@@ -155,14 +156,8 @@ public:
 
     LuaArgument &operator=(LuaArgument &&argument) noexcept
     {
-        // Move value and type
-        this->value = argument.value;
-        this->type = argument.type;
-
-        // TODO: make clear method
-        // Clear
-        argument.value = nullptr;
-        argument.type = LuaArgumentType::LueTypeNil;
+        this->destroy();
+        this->move(std::forward<LuaArgument>(argument));
 
         return *this;
     }
@@ -173,7 +168,7 @@ public:
      * @return Result
      */
     LUA_VM_ARGUMENT_GET_FUNCTION(bool &, LuaArgumentType::LuaTypeBoolean, Bool)
-        return *reinterpret_cast<bool *>(value);
+        return *reinterpret_cast<bool *>(this->value);
     }
 
     /**
@@ -182,7 +177,7 @@ public:
      * @return Result
      */
     LUA_VM_ARGUMENT_GET_FUNCTION(double &, LuaArgumentType::LuaTypeNumber, Number)
-        return *reinterpret_cast<double *>(value);
+        return *reinterpret_cast<double *>(this->value);
     }
 
     /**
@@ -191,7 +186,7 @@ public:
      * @return Result
      */
     LUA_VM_ARGUMENT_GET_FUNCTION(int &, LuaArgumentType::LuaTypeInteger, Integer)
-        return *reinterpret_cast<int *>(value);
+        return *reinterpret_cast<int *>(this->value);
     }
 
     /**
@@ -200,7 +195,7 @@ public:
      * @return Result
      */
     LUA_VM_ARGUMENT_GET_FUNCTION(std::string &, LuaArgumentType::LuaTypeString, String)
-        return *reinterpret_cast<std::string *>(value);
+        return *reinterpret_cast<std::string *>(this->value);
     }
 
     /**
@@ -209,7 +204,7 @@ public:
      * @return Result
      */
     LUA_VM_ARGUMENT_GET_FUNCTION(LuaObject &, LuaArgumentType::LuaTypeObject, Object)
-        return *reinterpret_cast<LuaObject *>(value);
+        return *reinterpret_cast<LuaObject *>(this->value);
     }
 
     /**
@@ -240,7 +235,7 @@ public:
      */
     bool isNil() const
     {
-        return this->type == LuaArgumentType::LueTypeNil;
+        return this->type == LuaArgumentType::LuaTypeNil;
     }
 
     /**
@@ -263,20 +258,18 @@ public:
     /**
      * @brief Destructor
      */
-    ~LuaArgument()
+    virtual ~LuaArgument()
     {
-        destroy();
+        this->destroy();
     }
 
 private:
-
-    // TODO: make move method
-
+    virtual void move(LuaArgument &&argument) noexcept;
     virtual void copy(const LuaArgument &argument);
     virtual void destroy() noexcept;
 
-    void *value;                                ///< Pointer to allocated value (unknown type)
-    LuaArgumentType type;                       ///< Object's type
+    void *value = nullptr;                                ///< Pointer to allocated value (unknown type)
+    LuaArgumentType type = LuaTypeNil;                    ///< Object's type
 };
 
 bool operator==(const LuaArgument &left, const LuaArgument &right);

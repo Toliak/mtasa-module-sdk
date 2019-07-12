@@ -1,33 +1,50 @@
+#include "functions.h"
+#include "lua/ILuaModuleManager.h"
 #include <list>
 
-#include "functions.h"
+
+#define CREATE_TEST_FUNCTION(x) \
+class _test_function_class_##x  \
+{                               \
+    static int function(lua_State *);  \
+                                \
+    static AddType _add;        \
+};                              \
+AddType _test_function_class_##x::_add                                 \
+    = allFunctions.insert(std::pair<std::string, Type>(#x, _test_function_class_##x::function));    \
+int _test_function_class_##x::function(lua_State *luaVm)
+
 
 namespace TestFunction
 {
 
-std::string stackDump(lua_State *L)
+using AddType = std::pair<decltype(allFunctions)::iterator, bool>;
+
+std::unordered_map<std::string, Type> allFunctions = {};
+
+std::string stackDump(lua_State *luaVm)
 {
     std::string result;
     int i;
-    int top = lua_gettop(L);
+    int top = lua_gettop(luaVm);
     for (i = 1; i <= top; i++) {  /* repeat for each level */
-        int t = lua_type(L, i);
+        int t = lua_type(luaVm, i);
         switch (t) {
 
             case LUA_TSTRING:  /* strings */
-                result += lua_tostring(L, i);
+                result += lua_tostring(luaVm, i);
                 break;
 
             case LUA_TBOOLEAN:  /* booleans */
-                result += (lua_toboolean(L, i) ? "true" : "false");
+                result += (lua_toboolean(luaVm, i) ? "true" : "false");
                 break;
 
             case LUA_TNUMBER:  /* numbers */
-                result += std::to_string(lua_tonumber(L, i));
+                result += std::to_string(lua_tonumber(luaVm, i));
                 break;
 
             default:  /* other values */
-                result += lua_typename(L, t);
+                result += lua_typename(luaVm, t);
                 break;
 
         }
@@ -36,40 +53,35 @@ std::string stackDump(lua_State *L)
     return result;
 }
 
-int simple(lua_State *luaVm)
+CREATE_TEST_FUNCTION(simple)
 {
     LuaVmExtended lua(luaVm);
     lua.pushArgument(LuaArgument(std::string("Yes!")));
     return 1;
 }
 
-int simpleList(lua_State *luaVm)
+CREATE_TEST_FUNCTION(simpleList)
 {
     LuaVmExtended lua(luaVm);
     std::list<LuaArgument> list = {
-        LuaArgument(std::string("Sample string")),
-        LuaArgument(-543),
-        LuaArgument(true),
-        LuaArgument(5.4),
+        {"Sample string"},
+        {-543},
+        {true},
+        {5.4},
     };
 
-    lua.pushArguments(list.cbegin(), list.cend());
-    return list.size();
+    return lua.pushArguments(list.cbegin(), list.cend());
 }
 
-int echo(lua_State *luaVm)
+CREATE_TEST_FUNCTION(echo)
 {
     LuaVmExtended lua(luaVm);
     auto vector = lua.getArguments();
 
-//    lua.pushArgument(LuaArgument(stackDump(luaVm)));
-//    return 1;
-
-    lua.pushArguments(vector.cbegin(), vector.cend());
-    return vector.size();
+    return lua.pushArguments(vector.cbegin(), vector.cend());
 }
 
-int isNumber(lua_State *luaVm)
+CREATE_TEST_FUNCTION(isNumber)
 {
     LuaVmExtended lua(luaVm);
     try {
@@ -82,7 +94,7 @@ int isNumber(lua_State *luaVm)
     return 1;
 }
 
-int isString(lua_State *luaVm)
+CREATE_TEST_FUNCTION(isString)
 {
     LuaVmExtended lua(luaVm);
     try {
@@ -95,7 +107,7 @@ int isString(lua_State *luaVm)
     return 1;
 }
 
-int echoElement(lua_State *luaVm)
+CREATE_TEST_FUNCTION(echoElement)
 {
     LuaVmExtended lua(luaVm);
     LuaArgument arg;
@@ -116,7 +128,7 @@ int echoElement(lua_State *luaVm)
     return 1;
 }
 
-int strictTypes(lua_State *luaVm)
+CREATE_TEST_FUNCTION(strictTypes)
 {
     LuaVmExtended lua(luaVm);
     try {
@@ -129,7 +141,7 @@ int strictTypes(lua_State *luaVm)
     return 1;
 }
 
-int simpleTable(lua_State *luaVm)
+CREATE_TEST_FUNCTION(simpleTable)
 {
     lua_createtable(luaVm, 1, 0);
     lua_createtable(luaVm, 0, 2); /* creates and pushes new table on top of Lua stack */
@@ -147,7 +159,7 @@ int simpleTable(lua_State *luaVm)
     return 1;
 }
 
-int callGetElementPosition(lua_State *luaVm)
+CREATE_TEST_FUNCTION(callGetElementPosition)
 {
     LuaVmExtended lua(luaVm);
 
@@ -166,20 +178,22 @@ int callGetElementPosition(lua_State *luaVm)
     try {
         for (LuaArgument &element : elements) {
             std::vector<LuaArgument> returns = lua.call("getElementPosition", {element}, 3);
-            for (const LuaArgument &v : returns) {
-                callReturn.push_back(v);
-            }
+
+            std::move(
+                returns.begin(),
+                returns.end(),
+                std::back_inserter(callReturn)
+            );
         }
     } catch (const LuaException &e) {
         lua.pushArgument(LuaArgument(std::string(e.what())));
         return 1;
     }
 
-    lua.pushArguments(callReturn.cbegin(), callReturn.cend());
-    return callReturn.size();
+    return lua.pushArguments(callReturn.cbegin(), callReturn.cend());
 }
 
-int call(lua_State *luaVm)
+CREATE_TEST_FUNCTION(callElementGetDimensionMethod)
 {
     LuaVmExtended lua(luaVm);
     LuaArgument element = lua.parseArgument(1, LuaTypeUserdata);
@@ -194,7 +208,7 @@ int call(lua_State *luaVm)
     return 1;
 }
 
-int pushFunction(lua_State *luaVm)
+CREATE_TEST_FUNCTION(pushFunction)
 {
     LuaVmExtended lua(luaVm);
 
@@ -208,7 +222,7 @@ int pushFunction(lua_State *luaVm)
     return 1;
 }
 
-int advancedTable(lua_State *luaVm)
+CREATE_TEST_FUNCTION(advancedTable)
 {
     LuaVmExtended lua(luaVm);
 
@@ -226,13 +240,10 @@ int advancedTable(lua_State *luaVm)
         LuaArgument(std::string("stop")),
     };
 
-
-    lua.pushArguments(arguments.cbegin(), arguments.cend());
-
-    return arguments.size();
+    return lua.pushArguments(arguments.cbegin(), arguments.cend());
 }
 
-int tableToList(lua_State *luaVm)
+CREATE_TEST_FUNCTION(tableToList)
 {
     LuaVmExtended lua(luaVm);
 
@@ -242,13 +253,20 @@ int tableToList(lua_State *luaVm)
         return 1;
     }
 
-    LuaArgument::TableListType list = table.toList();
+    LuaArgument::TableListType list;
+    try {
+        list = table.toList();
+    } catch (LuaException &e) {
+        lua.pushArgument(
+            LuaArgument(false)
+        );
+        return 1;
+    }
 
-    lua.pushArguments(list.cbegin(), list.cend());
-    return list.size();
+    return lua.pushArguments(list.cbegin(), list.cend());
 }
 
-int listToMap(lua_State *luaVm)
+CREATE_TEST_FUNCTION(listToMap)
 {
     LuaVmExtended lua(luaVm);
 
@@ -265,6 +283,121 @@ int listToMap(lua_State *luaVm)
 
     lua.pushArgument(LuaArgument(map));
     return 1;
+}
+
+CREATE_TEST_FUNCTION(constructors)
+{
+    LuaVmExtended lua(luaVm);
+
+    auto args = lua.getArguments();
+    LuaArgument argument = args.back();
+
+    // Copy constructor
+    LuaArgument copy(argument);
+
+    // Copy assignment
+    LuaArgument copyAssignment = argument;
+
+    try {
+        copy.extractObject();
+        copyAssignment.extractObject();
+    } catch (LuaException &) {
+
+    }
+
+    // Move constructor
+    LuaArgument move(std::move(copy));
+
+    // Move assignment
+    LuaArgument moveAssignment = std::move(copyAssignment);
+
+    std::list<LuaArgument> pushArgs{
+        argument,
+        move,
+        moveAssignment,
+    };
+
+    return lua.pushArguments(pushArgs.cbegin(), pushArgs.cend());
+}
+
+CREATE_TEST_FUNCTION(checkGetArgumentsUnexpected)
+{
+    LuaVmExtended lua(luaVm);
+
+    try {
+        lua.getArguments({LuaTypeNumber});      // Exception here
+
+        lua.pushArgument(LuaArgument(false));
+    } catch (LuaUnexpectedType &e) {
+        lua.pushArgument(LuaArgument(true));
+    } catch (LuaException &) {
+        lua.pushArgument(LuaArgument(false));
+    }
+
+    lua.pushArgument(LuaArgument(true));
+    return 1;
+}
+
+CREATE_TEST_FUNCTION(checkGetArgumentsBad)
+{
+    LuaVmExtended lua(luaVm);
+
+    try {
+        lua.getArguments();
+
+        lua.pushArgument(LuaArgument(false));
+    } catch (LuaBadType &e) {
+        lua.pushArgument(LuaArgument(true));
+    } catch (LuaException &) {
+        lua.pushArgument(LuaArgument(false));
+    }
+
+    return 1;
+}
+
+CREATE_TEST_FUNCTION(checkGetArgumentsOutOfRange)
+{
+    LuaVmExtended lua(luaVm);
+
+    try {
+        lua.getArguments({LuaTypeNumber, LuaTypeNumber});
+
+        lua.pushArgument(LuaArgument(false));
+    } catch (LuaOutOfRange &e) {
+        lua.pushArgument(LuaArgument(true));
+    } catch (LuaException &) {
+        lua.pushArgument(LuaArgument(false));
+    }
+
+    return 1;
+}
+
+CREATE_TEST_FUNCTION(checkParseArgumentObject)
+{
+    LuaVmExtended lua(luaVm);
+
+    LuaArgument object;
+    try {
+        object = lua.parseArgument(1, LuaTypeObject);
+    } catch (LuaException &) {
+        lua.pushArgument(LuaArgument(false));
+        return 1;
+    }
+
+    lua.pushArgument(LuaArgument(
+        object.getType() == LuaTypeObject
+    ));
+    return 1;
+}
+
+CREATE_TEST_FUNCTION(callFunction)
+{
+    LuaVmExtended lua(luaVm);
+
+    std::string name = lua.parseArgument(1, LuaTypeString).toString();
+    auto result = lua.call(name, {}, 1);
+
+    return lua.pushArguments(result.cbegin(), result.cend());
 }
 
 }

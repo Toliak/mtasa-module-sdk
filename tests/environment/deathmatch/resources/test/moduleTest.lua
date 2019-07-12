@@ -144,7 +144,7 @@ local TEST_FUNCTIONS = {
         },
     },
     {
-        name = "test_call",
+        name = "test_callElementGetDimensionMethod",
         description = "Call element:getDimension",
         input = { TEST_ELEMENTS[2] },
         expected = { TEST_ELEMENTS[2]:getDimension() },
@@ -212,6 +212,12 @@ local TEST_FUNCTIONS = {
         expected = { 0, 1, 2, 3, 4, 5 },
     },
     {
+        name = "test_tableToList",
+        description = "Table (parsed as map in C++) to list (bad)",
+        input = { { 0, 1, 2, 3, 4, 5, key='value' } },
+        expected = { false },
+    },
+    {
         name = "test_listToMap",
         description = "list to map",
         input = { },
@@ -224,9 +230,48 @@ local TEST_FUNCTIONS = {
                          ["key"] = 876,
                      } },
     },
+    {
+        name = "test_constructors",
+        description = "Successful constructor tests",
+        input = { "string" },
+        expected = {"string", "string", "string"},
+    },
+    {
+        name = "test_checkGetArgumentsUnexpected",
+        description = "Check getArguments exception LuaUnexpectedType",
+        input = { "string" },
+        expected = { true },
+    },
+    {
+        name = "test_checkGetArgumentsBad",
+        description = "Check getArguments exception LuaBadType",
+        input = { returnFive },
+        expected = { true },
+    },
+    {
+        name = "test_checkGetArgumentsOutOfRange",
+        description = "Check getArguments exception LuaOutOfRange",
+        input = {  },
+        expected = { true },
+    },
+    {
+        name = "test_checkParseArgumentObject",
+        description = "Check parseArgument for lua object",
+        input = { TEST_ELEMENTS[1] },
+        expected = { true },
+    },
+    {
+        name = "test_callFunction",
+        description = "Call global function",
+        input = { "returnFive" },
+        expected = { returnFive() },
+    },
 }
 
 addEventHandler("onResourceStart", resourceRoot, function()
+    iprint('===============[ TESTING DEV ]===============')
+    outputDebugString(test_dev_status())
+
     iprint('===============[ TESTING START ]===============')
 
     for _, v in pairs(TEST_FUNCTIONS) do

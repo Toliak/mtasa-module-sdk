@@ -6,7 +6,7 @@
 enum LuaArgumentType
 {
     // Lua types
-    LueTypeNil = LUA_TNIL,
+    LuaTypeNil = LUA_TNIL,
     LuaTypeBoolean = LUA_TBOOLEAN,
     LuaTypeLightUserdata = LUA_TLIGHTUSERDATA,
     LuaTypeNumber = LUA_TNUMBER,

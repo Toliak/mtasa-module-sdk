@@ -1,6 +1,12 @@
 #include "ModuleSdk/Exception.h"
 
-void LuaException::copy(const LuaException &luaException) noexcept
+void LuaException::move(LuaException &&luaException) noexcept
+{
+    this->message = luaException.message;
+    luaException.message = nullptr;
+}
+
+void LuaException::copy(const LuaException &luaException)
 {
     if (!luaException.what()) {
         return;
@@ -14,14 +20,4 @@ void LuaException::copy(const LuaException &luaException) noexcept
 void LuaException::destroy() noexcept
 {
     delete[] message;
-}
-
-const char *LuaUnexpectedType::what() const noexcept
-{
-    const char *message = LuaException::what();
-
-    if (!message) {
-        return "Unexpected argument type";
-    }
-    return message;
 }

@@ -1,5 +1,16 @@
 #include "ModuleSdk/LuaVmExtended.h"
 
+std::vector<LuaArgument> LuaVmExtended::getArguments()
+{
+    std::vector<LuaArgument> result;
+
+    for (int index = 1; lua_type(luaVm, index) != LUA_TNONE; index++) {
+        result.push_back(parseArgument(index));
+    }
+
+    return result;
+}
+
 std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgumentType> &types) const
 {
     std::vector<LuaArgument> result(types.size());
@@ -10,18 +21,18 @@ std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgument
         // While we have value on stack and type lists not ended
         try {
             result[index - 1] = parseArgument(index, *listIterator);
-        } catch (LuaException &) {
+        } catch (LuaUnexpectedType &e) {
+            // Extends captured exception
             throw LuaUnexpectedType(
                 *listIterator,
                 static_cast<LuaArgumentType>(lua_type(luaVm, index)),
                 index
             );
         }
-        // TODO: extend LuaUnexpectedType and re-throw LuaBadType
     }
 
     if (index - 1 != types.size()) {
-        throw std::out_of_range("Not enough arguments");                //TODO: LuaOutOfRange
+        throw LuaOutOfRange("Not enough arguments");
     }
 
     return result;
@@ -29,7 +40,7 @@ std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgument
 
 void LuaVmExtended::pushArgument(const LuaArgument &argument) const
 {
-    if (argument.getType() == LuaArgumentType::LueTypeNil) {
+    if (argument.getType() == LuaArgumentType::LuaTypeNil) {
         lua_pushnil(luaVm);
     } else if (argument.getType() == LuaArgumentType::LuaTypeNumber) {
         lua_pushnumber(luaVm, argument.toNumber());
@@ -65,7 +76,7 @@ LuaArgument LuaVmExtended::parseArgument(int index) const
     } else if (lua_isuserdata(luaVm, index)) {
         return parseArgument(index, LuaArgumentType::LuaTypeUserdata, true);
     } else if (lua_isnil(luaVm, index)) {
-        return parseArgument(index, LuaArgumentType::LueTypeNil, true);
+        return parseArgument(index, LuaArgumentType::LuaTypeNil, true);
     } else if (lua_istable(luaVm, index)) {
         // Cannot autodetect list
         return parseArgument(index, LuaArgumentType::LuaTypeTableMap, true);
@@ -76,11 +87,12 @@ LuaArgument LuaVmExtended::parseArgument(int index) const
 
 LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool force) const
 {
-    static const std::unordered_map<LuaArgumentType, int (*)(lua_State *, int)> TYPE_CHECKER = {
+    static const std::unordered_map<LuaArgumentType, int (*)(lua_State *, int)> typeChecker = {
         {LuaArgumentType::LuaTypeInteger, lua_isnumber},
         {LuaArgumentType::LuaTypeNumber, lua_isnumber},
         {LuaArgumentType::LuaTypeString, lua_isstring},
         {LuaArgumentType::LuaTypeUserdata, lua_isuserdata},
+        {LuaArgumentType::LuaTypeObject, lua_isuserdata},
 
         {
             LuaArgumentType::LuaTypeBoolean,
@@ -90,7 +102,7 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
             }
         },
         {
-            LuaArgumentType::LueTypeNil,
+            LuaArgumentType::LuaTypeNil,
             [](lua_State *vm, int index) -> int
             {
                 return lua_isnil(vm, index);
@@ -103,13 +115,12 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
                 return lua_istable(vm, index);
             }
         },
-        // TODO: add LuaTypeObject
     };      ///< Checker function dictionary
 
     if (!force) {               // No need to check type, if force
         int (*checker)(lua_State *, int);
         try {
-            checker = TYPE_CHECKER.at(type);
+            checker = typeChecker.at(type);
         } catch (std::out_of_range &) {
             throw LuaBadType(lua_type(luaVm, index));
         }
@@ -121,16 +132,21 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
 
     if (type == LuaArgumentType::LuaTypeBoolean) {
         return LuaArgument(static_cast<bool>(lua_toboolean(luaVm, index)));
-    } else if (type == LuaArgumentType::LuaTypeNumber) {
+    }
+    if (type == LuaArgumentType::LuaTypeNumber) {
         return LuaArgument(static_cast<double>(lua_tonumber(luaVm, index)));
-    } else if (type == LuaArgumentType::LuaTypeString) {
+    }
+    if (type == LuaArgumentType::LuaTypeString) {
         return LuaArgument(std::string(lua_tostring(luaVm, index)));
-    } else if (type == LuaArgumentType::LuaTypeUserdata) {
+    }
+    if (type == LuaArgumentType::LuaTypeUserdata) {
         LuaArgument result(lua_touserdata(luaVm, index));
         return result;
-    } else if (type == LuaArgumentType::LuaTypeInteger) {
+    }
+    if (type == LuaArgumentType::LuaTypeInteger) {
         return LuaArgument(static_cast<int>(lua_tointeger(luaVm, index)));
-    } else if (type == LuaArgumentType::LuaTypeTableMap) {
+    }
+    if (type == LuaArgumentType::LuaTypeTableMap) {
         LuaArgument::TableMapType result;
         lua_pushnil(luaVm);         // Current key is nil
 
@@ -145,6 +161,11 @@ LuaArgument LuaVmExtended::parseArgument(int index, LuaArgumentType type, bool f
 
         return LuaArgument(result);
     }
+    if (type == LuaArgumentType::LuaTypeObject) {
+        LuaArgument result(lua_touserdata(luaVm, index));
+        result.extractObject();
+        return result;
+    }
 
     return LuaArgument();
 }
@@ -153,7 +174,6 @@ std::vector<LuaArgument> LuaVmExtended::call(const std::string &function,
                                              const std::list<LuaArgument> &functionArgs,
                                              int returnSize) const
 {
-    // TODO: Check lua local function calling
     callFunction(function, functionArgs, returnSize);
     return getCallReturn(returnSize);
 }
@@ -260,8 +280,8 @@ void LuaVmExtended::pushTableList(const LuaArgument &argument) const
 {
     const std::vector<LuaArgument> &list = argument.toList();
 
-    lua_createtable(luaVm, list.size(), 0);
-    for (int i = 0; i < list.size(); i++) {
+    lua_createtable(luaVm, static_cast<int>(list.size()), 0);
+    for (int i = 0; i < static_cast<int>(list.size()); i++) {
         this->pushArgument(list[i]);
 
         lua_rawseti(luaVm, -2, i + 1);
@@ -272,22 +292,11 @@ void LuaVmExtended::pushTableMap(const LuaArgument &argument) const
 {
     const auto &map = argument.toMap();
 
-    lua_createtable(luaVm, 0, map.size());
+    lua_createtable(luaVm, 0, static_cast<int>(map.size()));
     for (const auto &pair : map) {
         this->pushArgument(pair.first);             // Set key
         this->pushArgument(pair.second);            // Set value
 
         lua_rawset(luaVm, -3);                      // Set table row
-    }
-}
-
-void LuaVmExtended::captureArguments()
-{
-    if (!arguments.empty()) {
-        arguments.clear();
-    }
-
-    for (int index = 1; lua_type(luaVm, index) != LUA_TNONE; index++) {
-        arguments.push_back(parseArgument(index));
     }
 }
