@@ -8,9 +8,9 @@ class _test_function_class_##x  \
 {                               \
     static int function(lua_State *);  \
                                 \
-    static _AddType _add;       \
+    static AddType _add;        \
 };                              \
-_AddType _test_function_class_##x::_add                                 \
+AddType _test_function_class_##x::_add                                 \
     = allFunctions.insert(std::pair<std::string, Type>(#x, _test_function_class_##x::function));    \
 int _test_function_class_##x::function(lua_State *luaVm)
 
@@ -18,33 +18,33 @@ int _test_function_class_##x::function(lua_State *luaVm)
 namespace TestFunction
 {
 
-using _AddType = std::pair<decltype(allFunctions)::iterator, bool>;
+using AddType = std::pair<decltype(allFunctions)::iterator, bool>;
 
-decltype(allFunctions) allFunctions = {};
+std::unordered_map<std::string, Type> allFunctions = {};
 
-std::string stackDump(lua_State *L)
+std::string stackDump(lua_State *luaVm)
 {
     std::string result;
     int i;
-    int top = lua_gettop(L);
+    int top = lua_gettop(luaVm);
     for (i = 1; i <= top; i++) {  /* repeat for each level */
-        int t = lua_type(L, i);
+        int t = lua_type(luaVm, i);
         switch (t) {
 
             case LUA_TSTRING:  /* strings */
-                result += lua_tostring(L, i);
+                result += lua_tostring(luaVm, i);
                 break;
 
             case LUA_TBOOLEAN:  /* booleans */
-                result += (lua_toboolean(L, i) ? "true" : "false");
+                result += (lua_toboolean(luaVm, i) ? "true" : "false");
                 break;
 
             case LUA_TNUMBER:  /* numbers */
-                result += std::to_string(lua_tonumber(L, i));
+                result += std::to_string(lua_tonumber(luaVm, i));
                 break;
 
             default:  /* other values */
-                result += lua_typename(L, t);
+                result += lua_typename(luaVm, t);
                 break;
 
         }
@@ -70,8 +70,7 @@ CREATE_TEST_FUNCTION(simpleList)
         LuaArgument(5.4),
     };
 
-    lua.pushArguments(list.cbegin(), list.cend());
-    return list.size();
+    return lua.pushArguments(list.cbegin(), list.cend());
 }
 
 CREATE_TEST_FUNCTION(echo)
@@ -79,11 +78,7 @@ CREATE_TEST_FUNCTION(echo)
     LuaVmExtended lua(luaVm);
     auto vector = lua.getArguments();
 
-//    lua.pushArgument(LuaArgument(stackDump(luaVm)));
-//    return 1;
-
-    lua.pushArguments(vector.cbegin(), vector.cend());
-    return vector.size();
+    return lua.pushArguments(vector.cbegin(), vector.cend());
 }
 
 CREATE_TEST_FUNCTION(isNumber)
@@ -192,8 +187,7 @@ CREATE_TEST_FUNCTION(callGetElementPosition)
         return 1;
     }
 
-    lua.pushArguments(callReturn.cbegin(), callReturn.cend());
-    return callReturn.size();
+    return lua.pushArguments(callReturn.cbegin(), callReturn.cend());
 }
 
 CREATE_TEST_FUNCTION(callElementGetDimensionMethod)
@@ -243,10 +237,7 @@ CREATE_TEST_FUNCTION(advancedTable)
         LuaArgument(std::string("stop")),
     };
 
-
-    lua.pushArguments(arguments.cbegin(), arguments.cend());
-
-    return arguments.size();
+    return lua.pushArguments(arguments.cbegin(), arguments.cend());
 }
 
 CREATE_TEST_FUNCTION(tableToList)

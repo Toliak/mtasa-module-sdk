@@ -35,7 +35,7 @@ LuaArgument::TableMapType LuaArgument::toMap() const
 
     TableListType &original = *reinterpret_cast<TableListType *>(value);
     TableMapType result;
-    for (int i = 0; i < original.size(); i++) {
+    for (size_t i = 0; i < original.size(); i++) {
         result[LuaArgument(i + 1.)] = original[i];
     }
     return result;
@@ -52,7 +52,7 @@ LuaArgument::TableListType LuaArgument::toList() const
 
     const auto &original = *reinterpret_cast<TableMapType *>(value);
     TableListType result(original.size());
-    for (int i = 0; i < original.size(); i++) {
+    for (size_t i = 0; i < original.size(); i++) {
         try {
             result[i] = original.at(LuaArgument(i + 1.));
         } catch (const std::out_of_range &) {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdexcept>
 #include <list>
 #include <vector>
 #include <unordered_map>
@@ -25,7 +24,6 @@ public:
 
     /**
      * @brief Parse all arguments from lua VM (types autodetect)
-     * @details Caches captured arguments
      * @return LuaArgument vector
      */
     std::vector<LuaArgument> getArguments();
@@ -158,11 +156,6 @@ private:
      * @brief Push transformable to table-list LuaArgument
      */
     void pushTableMap(const LuaArgument &argument) const;
-
-    /**
-     * Capture arguments (type autodetect)
-     */
-    void captureArguments();
 
     lua_State *luaVm;                               ///< Original VM
 };

@@ -33,17 +33,17 @@ EXTERN_C bool InitModule(ILuaModuleManager10 *pManager, char *szModuleName, char
 }
 
 
-EXTERN_C void RegisterFunctions(lua_State *luaVM)
+EXTERN_C void RegisterFunctions(lua_State *luaVm)
 {
     if (!ms_bInitWorked) {
         return;
     }
-    if (!(pModuleManager && luaVM)) {
+    if (!(pModuleManager && luaVm)) {
         return;
     }
 
     pModuleManager->RegisterFunction(
-        luaVM,
+        luaVm,
         "test_dev_status",
         [](lua_State *luaVm) -> int
         {
@@ -62,7 +62,7 @@ EXTERN_C void RegisterFunctions(lua_State *luaVM)
 
     for (const auto &pair : TestFunction::allFunctions) {
         pModuleManager->RegisterFunction(
-            luaVM,
+            luaVm,
             (std::string("test_") + pair.first).c_str(),
             pair.second
         );
