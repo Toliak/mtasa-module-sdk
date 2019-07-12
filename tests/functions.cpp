@@ -64,10 +64,10 @@ CREATE_TEST_FUNCTION(simpleList)
 {
     LuaVmExtended lua(luaVm);
     std::list<LuaArgument> list = {
-        LuaArgument(std::string("Sample string")),
-        LuaArgument(-543),
-        LuaArgument(true),
-        LuaArgument(5.4),
+        {"Sample string"},
+        {-543},
+        {true},
+        {5.4},
     };
 
     return lua.pushArguments(list.cbegin(), list.cend());

@@ -6,6 +6,7 @@
 #include "lua/lua.h"
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 
@@ -40,37 +41,41 @@ public:
     using TableListType = std::vector<LuaArgument>;
     using TableMapType = std::unordered_map<LuaArgument, LuaArgument, LuaArgumentHash>;
 
-    // TODO: change constructor value's name
-    // TODO: make constructors noexplicit
     /**
      * @brief Nil constructor
      */
-    explicit LuaArgument() = default;
+    LuaArgument() = default;
 
     /**
      * @brief Boolean constructor
      * @param value Initial boolean
      */
-    explicit LuaArgument(bool value)
-        : value(new bool(value)), type(LuaArgumentType::LuaTypeBoolean)
+    LuaArgument(bool valueBool)
+        : value(new bool(valueBool)), type(LuaArgumentType::LuaTypeBoolean)
     {}
 
     /**
      * @brief Number constructor
      * @param value Initial double
      */
-    explicit LuaArgument(double value)
-        : value(new double(value)), type(LuaArgumentType::LuaTypeNumber)
+    LuaArgument(double valueDouble)
+        : value(new double(valueDouble)), type(LuaArgumentType::LuaTypeNumber)
     {}
-
-    // TODO: make c-style string constructor
 
     /**
      * @brief String constructor
      * @param value Initial string
      */
-    explicit LuaArgument(std::string value)
-        : value(new std::string(std::move(value))), type(LuaArgumentType::LuaTypeString)
+    LuaArgument(std::string valueString)
+        : value(new std::string(std::move(valueString))), type(LuaArgumentType::LuaTypeString)
+    {}
+
+    /**
+     * @brief const char * constructor
+     * @param value C-style string
+     */
+    LuaArgument(const char *valueStringC)
+        : value(new std::string(valueStringC)), type(LuaArgumentType::LuaTypeString)
     {}
 
     /// Constructor pointer meaning
@@ -85,40 +90,40 @@ public:
      * @param value Initial pointer
      * @param type Pointer meaning
      */
-    explicit LuaArgument(void *value, PointerType type = PointerUserdata)
-        : value(value), type(static_cast<LuaArgumentType>(type))
+    LuaArgument(void *valuePointer, PointerType type = PointerUserdata)
+        : value(valuePointer), type(static_cast<LuaArgumentType>(type))
     {}
 
     /**
      * @brief Integer constructor
      * @param value Initial int
      */
-    explicit LuaArgument(int value)
-        : value(new int(value)), type(LuaArgumentType::LuaTypeInteger)
+    LuaArgument(int valueInt)
+        : value(new int(valueInt)), type(LuaArgumentType::LuaTypeInteger)
     {}
 
     /**
      * @brief MTASA Object (userdata special case) constructor
      * @param value Initial LuaObject
      */
-    explicit LuaArgument(LuaObject value)
-        : value(new LuaObject(std::move(value))), type(LuaArgumentType::LuaTypeObject)
+    LuaArgument(LuaObject valueObject)
+        : value(new LuaObject(std::move(valueObject))), type(LuaArgumentType::LuaTypeObject)
     {}
 
     /**
      * @brief List (table special case) constructor
      * @param value Initial vector of LuaArgument
      */
-    explicit LuaArgument(const TableListType &value)
-        : value(new TableListType(value)), type(LuaArgumentType::LuaTypeTableList)
+    LuaArgument(TableListType valueList)
+        : value(new TableListType(std::move(valueList))), type(LuaArgumentType::LuaTypeTableList)
     {}
 
     /**
      * @brief Map (table special case) constructor
      * @param value Initial map of LuaArgument
      */
-    explicit LuaArgument(const TableMapType &value)
-        : value(new TableMapType(value)), type(LuaArgumentType::LuaTypeTableMap)
+    LuaArgument(TableMapType valueMap)
+        : value(new TableMapType(std::move(valueMap))), type(LuaArgumentType::LuaTypeTableMap)
     {}
 
     /**
@@ -163,7 +168,7 @@ public:
      * @return Result
      */
     LUA_VM_ARGUMENT_GET_FUNCTION(bool &, LuaArgumentType::LuaTypeBoolean, Bool)
-        return *reinterpret_cast<bool *>(value);
+        return *reinterpret_cast<bool *>(this->value);
     }
 
     /**
@@ -172,7 +177,7 @@ public:
      * @return Result
      */
     LUA_VM_ARGUMENT_GET_FUNCTION(double &, LuaArgumentType::LuaTypeNumber, Number)
-        return *reinterpret_cast<double *>(value);
+        return *reinterpret_cast<double *>(this->value);
     }
 
     /**
@@ -181,7 +186,7 @@ public:
      * @return Result
      */
     LUA_VM_ARGUMENT_GET_FUNCTION(int &, LuaArgumentType::LuaTypeInteger, Integer)
-        return *reinterpret_cast<int *>(value);
+        return *reinterpret_cast<int *>(this->value);
     }
 
     /**
@@ -190,7 +195,7 @@ public:
      * @return Result
      */
     LUA_VM_ARGUMENT_GET_FUNCTION(std::string &, LuaArgumentType::LuaTypeString, String)
-        return *reinterpret_cast<std::string *>(value);
+        return *reinterpret_cast<std::string *>(this->value);
     }
 
     /**
@@ -199,7 +204,7 @@ public:
      * @return Result
      */
     LUA_VM_ARGUMENT_GET_FUNCTION(LuaObject &, LuaArgumentType::LuaTypeObject, Object)
-        return *reinterpret_cast<LuaObject *>(value);
+        return *reinterpret_cast<LuaObject *>(this->value);
     }
 
     /**
