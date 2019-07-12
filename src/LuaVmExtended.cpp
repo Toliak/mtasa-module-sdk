@@ -1,5 +1,16 @@
 #include "ModuleSdk/LuaVmExtended.h"
 
+std::vector<LuaArgument> LuaVmExtended::getArguments()
+{
+    std::vector<LuaArgument> result;
+
+    for (int index = 1; lua_type(luaVm, index) != LUA_TNONE; index++) {
+        result.push_back(parseArgument(index));
+    }
+
+    return result;
+}
+
 std::vector<LuaArgument> LuaVmExtended::getArguments(const std::list<LuaArgumentType> &types) const
 {
     std::vector<LuaArgument> result(types.size());
@@ -287,16 +298,5 @@ void LuaVmExtended::pushTableMap(const LuaArgument &argument) const
         this->pushArgument(pair.second);            // Set value
 
         lua_rawset(luaVm, -3);                      // Set table row
-    }
-}
-
-void LuaVmExtended::captureArguments()
-{
-    if (!arguments.empty()) {
-        arguments.clear();
-    }
-
-    for (int index = 1; lua_type(luaVm, index) != LUA_TNONE; index++) {
-        arguments.push_back(parseArgument(index));
     }
 }

@@ -28,14 +28,7 @@ public:
      * @details Caches captured arguments
      * @return LuaArgument vector
      */
-    const std::vector<LuaArgument> &getArguments()
-    {
-        if (!isArgumentsCaptured) {
-            captureArguments();
-        }
-
-        return arguments;
-    }
+    std::vector<LuaArgument> getArguments();
 
     /**
      * @brief Parse arguments from lua VM
@@ -172,8 +165,4 @@ private:
     void captureArguments();
 
     lua_State *luaVm;                               ///< Original VM
-
-    bool isArgumentsCaptured = false;               ///< Arguments capture flag
-    // TODO: remove arguments caching (in case of changing stack)
-    std::vector<LuaArgument> arguments;             ///< Captured arguments
 };
