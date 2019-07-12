@@ -1,9 +1,7 @@
 #pragma once
 
-#include <unordered_map>
-
-#include "lua/lua.h"
 #include "ModuleSdk/LuaVmExtended.h"
+#include <unordered_map>
 
 
 namespace TestFunction

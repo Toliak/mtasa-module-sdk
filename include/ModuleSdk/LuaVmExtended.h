@@ -1,12 +1,11 @@
 #pragma once
 
-#include <list>
-#include <vector>
-#include <unordered_map>
-
-#include "lua/lua.h"
-#include "lua/ILuaModuleManager.h"
 #include "LuaArgument.h"
+#include "lua/lua.h"
+#include <list>
+#include <unordered_map>
+#include <vector>
+
 
 /**
  * @brief Extends lua_State functional

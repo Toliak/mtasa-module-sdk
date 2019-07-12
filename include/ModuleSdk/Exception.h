@@ -1,11 +1,10 @@
 #pragma once
 
+#include "LuaArgumentType.h"
+#include <cstring>
+#include <exception>
 #include <string>
 #include <unordered_map>
-#include <exception>
-#include <cstring>
-
-#include "LuaArgumentType.h"
 
 static const std::unordered_map<LuaArgumentType, std::string> STRING_TYPE = {
     {LuaArgumentType::LuaTypeNil, "Nil"},
@@ -37,13 +36,13 @@ public:
 
     LuaException(const LuaException &luaException) noexcept
     {
-        destroy();
-        copy(luaException);
+        this->destroy();
+        this->copy(luaException);
     }
 
     LuaException(LuaException &&luaException) noexcept
     {
-        move(std::forward<LuaException>(luaException));
+        this->move(std::forward<LuaException>(luaException));
     }
 
     LuaException &operator=(const LuaException &luaException)
@@ -92,7 +91,7 @@ public:
 
     ~LuaException() override
     {
-        destroy();
+        this->destroy();
     }
 };
 
@@ -244,9 +243,9 @@ public:
 
     LuaUnexpectedArgumentType() = delete;
 
-    explicit LuaUnexpectedArgumentType(LuaArgumentType expectedType, LuaArgumentType recievedType)
+    explicit LuaUnexpectedArgumentType(LuaArgumentType expectedType, LuaArgumentType receivedType)
     {
-        this->setMessage("Expected " + STRING_TYPE.at(expectedType) + ", got " + STRING_TYPE.at(recievedType));
+        this->setMessage("Expected " + STRING_TYPE.at(expectedType) + ", got " + STRING_TYPE.at(receivedType));
     }
 
     ~LuaUnexpectedArgumentType() override = default;

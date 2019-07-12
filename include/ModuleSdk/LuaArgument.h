@@ -1,15 +1,13 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <unordered_map>
-#include <stdexcept>
-
-#include "lua/lua.h"
-
 #include "Exception.h"
 #include "LuaArgumentType.h"
 #include "LuaObject.h"
+#include "lua/lua.h"
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 
 #define LUA_VM_ARGUMENT_GET_FUNCTION(templateType, check, typeName) \
 templateType to##typeName() const    \
@@ -32,7 +30,6 @@ public:
 
 /**
  * @brief Lua dynamic type object
- *
  */
 class LuaArgument
 {
@@ -256,9 +253,9 @@ public:
     /**
      * @brief Destructor
      */
-    ~LuaArgument()
+    virtual ~LuaArgument()
     {
-        destroy();
+        this->destroy();
     }
 
 private:

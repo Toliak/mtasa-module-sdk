@@ -1,8 +1,8 @@
-#include <cstring>
-
+#include "functions.h"
 #include "lua/ILuaModuleManager.h"
 #include "lua/LuaImports.h"
-#include "functions.h"
+#include <cstring>
+#include <numeric>
 
 #define MODULE_NAME "ModuleSdkTest"
 #define MODULE_AUTHOR "Toliak"
@@ -49,11 +49,16 @@ EXTERN_C void RegisterFunctions(lua_State *luaVm)
         {
             std::string result;
             result += "Function amount: " + std::to_string(TestFunction::allFunctions.size()) + "\n";
-            result += "Functions: \n";
 
-            for (const auto &pair : TestFunction::allFunctions) {
-                result += "\t" + pair.first + "\n";
-            }
+            result += std::accumulate(
+                TestFunction::allFunctions.cbegin(),
+                TestFunction::allFunctions.cend(),
+                std::string("Functions: \n"),
+                [](std::string old, const auto &pair)
+                {
+                    return std::move(old) + "\t" + pair.first + "\n";
+                }
+            );
 
             lua_pushstring(luaVm, result.c_str());
             return 1;
@@ -63,7 +68,7 @@ EXTERN_C void RegisterFunctions(lua_State *luaVm)
     for (const auto &pair : TestFunction::allFunctions) {
         pModuleManager->RegisterFunction(
             luaVm,
-            (std::string("test_") + pair.first).c_str(),
+            ("test_" + pair.first).c_str(),
             pair.second
         );
     }

@@ -8,7 +8,8 @@ size_t LuaArgumentHash::operator()(const LuaArgument &argument) const
         return hashType ^ reinterpret_cast<uintptr_t>(argument.value);
     }
     if (argument.type == LuaArgumentType::LuaTypeBoolean) {
-        return hashType ^ *reinterpret_cast<bool *>(argument.value);
+        bool boolean = *reinterpret_cast<bool *>(argument.value);
+        return hashType ^ static_cast<unsigned int>(boolean);
     }
     if (argument.type == LuaArgumentType::LuaTypeNumber) {
         return hashType ^ static_cast<size_t>(*reinterpret_cast<double *>(argument.value));
@@ -173,6 +174,13 @@ void LuaArgument::destroy() noexcept
 
     } else if (type == LuaArgumentType::LuaTypeTableMap) {
         delete reinterpret_cast<TableMapType *>(value);
+
+    } else {
+        // LuaTypeNil
+        // LuaTypeLightUserdata
+        // LuaTypeUserdata
+
+        return;
     }
 }
 

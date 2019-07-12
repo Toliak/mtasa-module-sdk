@@ -1,6 +1,6 @@
-#include <list>
-
 #include "functions.h"
+#include "lua/ILuaModuleManager.h"
+#include <list>
 
 
 #define CREATE_TEST_FUNCTION(x) \
@@ -178,9 +178,12 @@ CREATE_TEST_FUNCTION(callGetElementPosition)
     try {
         for (LuaArgument &element : elements) {
             std::vector<LuaArgument> returns = lua.call("getElementPosition", {element}, 3);
-            for (const LuaArgument &v : returns) {
-                callReturn.push_back(v);
-            }
+
+            std::move(
+                returns.begin(),
+                returns.end(),
+                std::back_inserter(callReturn)
+            );
         }
     } catch (const LuaException &e) {
         lua.pushArgument(LuaArgument(std::string(e.what())));
