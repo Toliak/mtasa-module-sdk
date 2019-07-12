@@ -8,7 +8,8 @@ size_t LuaArgumentHash::operator()(const LuaArgument &argument) const
         return hashType ^ reinterpret_cast<uintptr_t>(argument.value);
     }
     if (argument.type == LuaArgumentType::LuaTypeBoolean) {
-        return hashType ^ *reinterpret_cast<bool *>(argument.value);
+        bool boolean = *reinterpret_cast<bool *>(argument.value);
+        return hashType ^ static_cast<unsigned int>(boolean);
     }
     if (argument.type == LuaArgumentType::LuaTypeNumber) {
         return hashType ^ static_cast<size_t>(*reinterpret_cast<double *>(argument.value));
@@ -35,7 +36,7 @@ LuaArgument::TableMapType LuaArgument::toMap() const
 
     TableListType &original = *reinterpret_cast<TableListType *>(value);
     TableMapType result;
-    for (int i = 0; i < original.size(); i++) {
+    for (size_t i = 0; i < original.size(); i++) {
         result[LuaArgument(i + 1.)] = original[i];
     }
     return result;
@@ -52,7 +53,7 @@ LuaArgument::TableListType LuaArgument::toList() const
 
     const auto &original = *reinterpret_cast<TableMapType *>(value);
     TableListType result(original.size());
-    for (int i = 0; i < original.size(); i++) {
+    for (size_t i = 0; i < original.size(); i++) {
         try {
             result[i] = original.at(LuaArgument(i + 1.));
         } catch (const std::out_of_range &) {
@@ -96,10 +97,21 @@ LuaObject &LuaArgument::extractObject(const std::string &stringClass)
     return *reinterpret_cast<LuaObject *>(this->value);
 }
 
+void LuaArgument::move(LuaArgument &&argument) noexcept
+{
+    // Move value and type
+    this->value = argument.value;
+    this->type = argument.type;
+
+    // Clear old argument
+    argument.value = nullptr;
+    argument.type = LuaArgumentType::LuaTypeNil;
+}
+
 void LuaArgument::copy(const LuaArgument &argument)
 {
     if (!argument.value) {                          // Nil
-        this->type = LuaArgumentType::LueTypeNil;
+        this->type = LuaArgumentType::LuaTypeNil;
         this->value = nullptr;
         return;
     }
@@ -162,6 +174,13 @@ void LuaArgument::destroy() noexcept
 
     } else if (type == LuaArgumentType::LuaTypeTableMap) {
         delete reinterpret_cast<TableMapType *>(value);
+
+    } else {
+        // LuaTypeNil
+        // LuaTypeLightUserdata
+        // LuaTypeUserdata
+
+        return;
     }
 }
 
