@@ -28,10 +28,9 @@ class LuaException: public std::exception
     char *message = nullptr;
 
 protected:
-    virtual void copy(const LuaException &luaException) noexcept;
+    virtual void move(LuaException &&luaException) noexcept;
+    virtual void copy(const LuaException &luaException);
     virtual void destroy() noexcept;
-
-    // TODO: make move method
 
 public:
     LuaException() = default;
@@ -44,8 +43,7 @@ public:
 
     LuaException(LuaException &&luaException) noexcept
     {
-        this->message = luaException.message;
-        luaException.message = nullptr;
+        move(std::forward<LuaException>(luaException));
     }
 
     LuaException &operator=(const LuaException &luaException)
@@ -57,8 +55,8 @@ public:
 
     LuaException &operator=(LuaException &&luaException) noexcept
     {
-        this->message = luaException.message;
-        luaException.message = nullptr;
+        destroy();
+        move(std::forward<LuaException>(luaException));
         return *this;
     }
 

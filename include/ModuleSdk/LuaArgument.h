@@ -262,7 +262,7 @@ public:
     }
 
 private:
-    virtual void move(LuaArgument &&argument);
+    virtual void move(LuaArgument &&argument) noexcept;
     virtual void copy(const LuaArgument &argument);
     virtual void destroy() noexcept;
 

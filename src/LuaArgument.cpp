@@ -96,7 +96,7 @@ LuaObject &LuaArgument::extractObject(const std::string &stringClass)
     return *reinterpret_cast<LuaObject *>(this->value);
 }
 
-void LuaArgument::move(LuaArgument &&argument)
+void LuaArgument::move(LuaArgument &&argument) noexcept
 {
     // Move value and type
     this->value = argument.value;

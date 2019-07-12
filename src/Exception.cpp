@@ -1,6 +1,12 @@
 #include "ModuleSdk/Exception.h"
 
-void LuaException::copy(const LuaException &luaException) noexcept
+void LuaException::move(LuaException &&luaException) noexcept
+{
+    this->message = luaException.message;
+    luaException.message = nullptr;
+}
+
+void LuaException::copy(const LuaException &luaException)
 {
     if (!luaException.what()) {
         return;
