@@ -8,7 +8,6 @@ services:
 
 tests:
   before_script:
-    - docker version
     - apk add docker-compose
 
   script:
