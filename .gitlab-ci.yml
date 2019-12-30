@@ -1,11 +1,16 @@
 image: docker:19.03.5
 
+variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+
 services:
-    - docker:dind
+    - docker:19.03.5-dind
 
 tests:
   before_script:
+    - docker status
     - apk add docker-compose
+    
 
   script:
     - ./compose-test.sh
