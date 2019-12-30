@@ -1,0 +1,10 @@
+image: docker:19.03.5
+
+services:
+    - docker:dind
+
+tests:
+  script:
+    - docker-compose
+
+
