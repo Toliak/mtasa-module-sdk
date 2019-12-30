@@ -4,7 +4,10 @@ services:
     - docker:dind
 
 tests:
+  before_script:
+    - apk add docker-compose
+
   script:
-    - docker-compose
+    - ./compose-test.sh
 
 
