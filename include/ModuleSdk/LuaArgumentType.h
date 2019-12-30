@@ -3,7 +3,7 @@
 #include "lua/lua.h"
 
 /// LuaArgument types description
-enum LuaArgumentType
+enum class LuaArgumentType
 {
     // Lua types
     LuaTypeNil = LUA_TNIL,

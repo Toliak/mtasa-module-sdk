@@ -81,8 +81,8 @@ public:
     /// Constructor pointer meaning
     enum PointerType
     {
-        PointerUserdata = LuaArgumentType::LuaTypeUserdata,
-        PointerLightuserdata = LuaArgumentType::LuaTypeLightUserdata,
+        PointerUserdata = static_cast<int>(LuaArgumentType::LuaTypeUserdata),
+        PointerLightuserdata = static_cast<int>(LuaArgumentType::LuaTypeLightUserdata),
     };
 
     /**
@@ -269,7 +269,7 @@ private:
     virtual void destroy() noexcept;
 
     void *value = nullptr;                                ///< Pointer to allocated value (unknown type)
-    LuaArgumentType type = LuaTypeNil;                    ///< Object's type
+    LuaArgumentType type = LuaArgumentType::LuaTypeNil;                    ///< Object's type
 };
 
 bool operator==(const LuaArgument &left, const LuaArgument &right);
