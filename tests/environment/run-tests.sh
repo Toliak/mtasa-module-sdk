@@ -41,10 +41,12 @@ while [[ -z ${status} ]]; do
     status=$(cat ${SERVER_FOLDER}/mods/deathmatch/logs/server.log | grep "\[TEST TOTAL\]")
 done
 
+cat ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
+printf "\n\n\n"
 status_ok=$(echo ${status} | grep "\[TEST TOTAL\]\[OK\]")
+
 if [[ -z ${status_ok} ]]; then
     echo Tests failed
-    cat ${SERVER_FOLDER}/mods/deathmatch/logs/server.log
     exitFail
 else
     echo Tests passed
