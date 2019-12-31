@@ -5,7 +5,11 @@ export GROUP_ID=$(id -g)
 
 mkdir -p cmake-build-modules
 docker-compose up --build 2>&1 | tee compose-log.txt
-if [[ ! -z $(cat compose-log.txt | egrep "exited with code [1-9]") ]]; then
+
+if grep -E -q "exited with code [1-9]" compose-log.txt; then
+    exit 1
+fi
+if grep -E -q "non-zero code: [1-9]" compose-log.txt; then
     exit 1
 fi
 
