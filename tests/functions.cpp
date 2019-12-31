@@ -85,7 +85,7 @@ CREATE_TEST_FUNCTION(isNumber)
 {
     LuaVmExtended lua(luaVm);
     try {
-        lua.parseArgument(1, LuaTypeNumber);
+        lua.parseArgument(1, LuaArgumentType::LuaTypeNumber);
     } catch (const LuaUnexpectedType &) {
         lua.pushArgument(LuaArgument(false));
         return 1;
@@ -98,7 +98,7 @@ CREATE_TEST_FUNCTION(isString)
 {
     LuaVmExtended lua(luaVm);
     try {
-        lua.parseArgument(1, LuaTypeString);
+        lua.parseArgument(1, LuaArgumentType::LuaTypeString);
     } catch (const LuaUnexpectedType &) {
         lua.pushArgument(LuaArgument(false));
         return 1;
@@ -132,7 +132,7 @@ CREATE_TEST_FUNCTION(strictTypes)
 {
     LuaVmExtended lua(luaVm);
     try {
-        lua.getArguments({LuaTypeBoolean, LuaTypeString, LuaTypeInteger});
+        lua.getArguments({LuaArgumentType::LuaTypeBoolean, LuaArgumentType::LuaTypeString, LuaArgumentType::LuaTypeInteger});
     } catch (const LuaUnexpectedType &e) {
         lua.pushArgument(LuaArgument(false));
         return 1;
@@ -196,7 +196,7 @@ CREATE_TEST_FUNCTION(callGetElementPosition)
 CREATE_TEST_FUNCTION(callElementGetDimensionMethod)
 {
     LuaVmExtended lua(luaVm);
-    LuaArgument element = lua.parseArgument(1, LuaTypeUserdata);
+    LuaArgument element = lua.parseArgument(1, LuaArgumentType::LuaTypeUserdata);
     element.extractObject();
 
     lua_getglobal(luaVm, "Element");
@@ -204,7 +204,7 @@ CREATE_TEST_FUNCTION(callElementGetDimensionMethod)
     lua.pushArgument(element);
 
     lua_pcall(luaVm, 1, 1, 0);
-    lua.pushArgument(lua.parseArgument(-1, LuaTypeInteger));
+    lua.pushArgument(lua.parseArgument(-1, LuaArgumentType::LuaTypeInteger));
     return 1;
 }
 
@@ -218,7 +218,7 @@ CREATE_TEST_FUNCTION(pushFunction)
     luaL_unref(luaVm, LUA_REGISTRYINDEX, ref);
 
     lua_pcall(luaVm, 0, 1, 0);
-    lua.pushArgument(lua.parseArgument(-1, LuaTypeInteger));
+    lua.pushArgument(lua.parseArgument(-1, LuaArgumentType::LuaTypeInteger));
     return 1;
 }
 
@@ -248,7 +248,7 @@ CREATE_TEST_FUNCTION(tableToList)
     LuaVmExtended lua(luaVm);
 
     LuaArgument table = lua.parseArgument(1);
-    if (table.getType() != LuaTypeTableMap) {
+    if (table.getType() != LuaArgumentType::LuaTypeTableMap) {
         lua.pushArgument(LuaArgument(false));
         return 1;
     }
@@ -325,7 +325,7 @@ CREATE_TEST_FUNCTION(checkGetArgumentsUnexpected)
     LuaVmExtended lua(luaVm);
 
     try {
-        lua.getArguments({LuaTypeNumber});      // Exception here
+        lua.getArguments({LuaArgumentType::LuaTypeNumber});      // Exception here
 
         lua.pushArgument(LuaArgument(false));
     } catch (LuaUnexpectedType &e) {
@@ -360,7 +360,7 @@ CREATE_TEST_FUNCTION(checkGetArgumentsOutOfRange)
     LuaVmExtended lua(luaVm);
 
     try {
-        lua.getArguments({LuaTypeNumber, LuaTypeNumber});
+        lua.getArguments({LuaArgumentType::LuaTypeNumber, LuaArgumentType::LuaTypeNumber});
 
         lua.pushArgument(LuaArgument(false));
     } catch (LuaOutOfRange &e) {
@@ -378,14 +378,14 @@ CREATE_TEST_FUNCTION(checkParseArgumentObject)
 
     LuaArgument object;
     try {
-        object = lua.parseArgument(1, LuaTypeObject);
+        object = lua.parseArgument(1, LuaArgumentType::LuaTypeObject);
     } catch (LuaException &) {
         lua.pushArgument(LuaArgument(false));
         return 1;
     }
 
     lua.pushArgument(LuaArgument(
-        object.getType() == LuaTypeObject
+        object.getType() == LuaArgumentType::LuaTypeObject
     ));
     return 1;
 }
@@ -394,7 +394,7 @@ CREATE_TEST_FUNCTION(callFunction)
 {
     LuaVmExtended lua(luaVm);
 
-    std::string name = lua.parseArgument(1, LuaTypeString).toString();
+    std::string name = lua.parseArgument(1, LuaArgumentType::LuaTypeString).toString();
     auto result = lua.call(name, {}, 1);
 
     return lua.pushArguments(result.cbegin(), result.cend());
