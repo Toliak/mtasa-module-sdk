@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.com/Toliak/mtasa-module-sdk.svg?branch=master)](https://travis-ci.com/Toliak/mtasa-module-python)
-[![pipeline status](https://gitlab.toliak.ru/mtasa/module-sdk/badges/master/pipeline.svg)](https://gitlab.toliak.ru/mtasa/module-python/commits/some-trash)
+[![Build Status](https://travis-ci.com/Toliak/mtasa-module-sdk.svg?branch=master)](https://travis-ci.com/Toliak/mtasa-module-sdk)
+[![pipeline status](https://gitlab.toliak.ru/mtasa/module-sdk/badges/master/pipeline.svg)](https://gitlab.toliak.ru/mtasa/module-sdk)
 ![Code size](https://img.shields.io/github/languages/code-size/Toliak/mtasa-module-sdk.svg)
 ![GitHub Repo size](https://img.shields.io/github/repo-size/Toliak/mtasa-module-sdk.svg)
 
